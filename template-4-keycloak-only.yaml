@@ -876,10 +876,10 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   rules:
-    - host: "id.kubernetes.local"
+    - host: omara-sep.cloud.first8.nl
       http:
         paths:
-          - path: "/"
+          - path: /
             pathType: ImplementationSpecific
             backend:
               service:
@@ -889,17 +889,20 @@ spec:
     - host: omara-sep.cloud.first8.nl
       http:
         paths:
-          - backend:
+          - path: /
+            pathType: Prefix
+            backend:
               service:
                 name: keycloak
                 port:
                   number: 80
-            path: /
-            pathType: Prefix
   tls:
     - hosts:
-        - "id.kubernetes.local"
-      secretName: id.kubernetes.local-tls
+        - omara-sep.cloud.first8.nl
+      secretName: omara-sep.cloud.first8.nl-tls
+    - hosts:
+        - omara-sep.cloud.first8.nl
+      secretName: letsencrypt-nginx-echo
 ---
 # Source: keycloak/templates/keycloak-config-cli-job.yaml
 apiVersion: batch/v1
