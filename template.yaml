@@ -4459,6 +4459,7 @@ metadata:
     helm.sh/chart: collabora-0.1.1
     app.kubernetes.io/component: collabora
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging-nginx
     nginx.ingress.kubernetes.io/configuration-snippet: |
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -4468,7 +4469,7 @@ metadata:
     nginx.ingress.kubernetes.io/upstream-hash-by: $arg_WOPISrc
 spec:
   rules:
-    - host: keycloak.cloud.first8.nl
+    - host: collabora-online.cloud.first8.nl
       http:
         paths:
         - backend:
@@ -4478,6 +4479,10 @@ spec:
                 name: http
           path: /
           pathType: Prefix
+  tls:
+    - hosts:
+        - "collabora.kubernetes.local"
+      secretName: collabora.kubernetes.local-tls
 
 ---
 # Source: nextcloud/templates/networkpolicy-cronjob.yaml
@@ -9235,7 +9240,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-migrate-1769593417
+  name: docs-backend-migrate-1769594268
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
@@ -9524,7 +9529,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-createsuperuser-1769593417
+  name: docs-backend-createsuperuser-1769594268
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
