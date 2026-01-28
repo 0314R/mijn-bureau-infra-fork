@@ -4468,16 +4468,6 @@ metadata:
     nginx.ingress.kubernetes.io/upstream-hash-by: $arg_WOPISrc
 spec:
   rules:
-    - host: "collabora.kubernetes.local"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: collabora-online
-                port:
-                  name: http
     - host: keycloak.cloud.first8.nl
       http:
         paths:
@@ -9245,7 +9235,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-migrate-1769591002
+  name: docs-backend-migrate-1769593417
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
@@ -9534,7 +9524,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-createsuperuser-1769591002
+  name: docs-backend-createsuperuser-1769593417
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
