@@ -4478,16 +4478,6 @@ spec:
                 name: collabora-online
                 port:
                   name: http
-    - host: keycloak.cloud.first8.nl
-      http:
-        paths:
-        - backend:
-            service:
-              name: collabora-online
-              port:
-                number: http
-          path: /
-          pathType: Prefix
 
 ---
 # Source: nextcloud/templates/networkpolicy-cronjob.yaml
@@ -9245,7 +9235,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-migrate-1769591002
+  name: docs-backend-migrate-1769585379
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
@@ -9534,7 +9524,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-createsuperuser-1769591002
+  name: docs-backend-createsuperuser-1769585379
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
