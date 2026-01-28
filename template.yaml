@@ -147,7 +147,7 @@ data:
   KC_HOSTNAME_STRICT: "false"
   KC_HOSTNAME: "https://id.kubernetes.local/"
   KC_METRICS_ENABLED: "false"
-  KC_DB_URL: "jdbc:postgresql://keycloak-postgresql:5432/keycloak?currentSchema=public"
+  KC_DB_URL: "jdbc:postgresql://postgres-db.omara-sep.svc.cluster.local:5432/keycloak?currentSchema=public"
   KC_DB_SCHEMA: "public"
   KC_DB_PASSWORD_FILE: /opt/bitnami/keycloak/secrets/db-password
   KC_DB_USERNAME_FILE: /opt/bitnami/keycloak/secrets/db-username
@@ -180,7 +180,7 @@ data:
         "frontendUrl": "https://id.kubernetes.local"
       }
     }
-
+    
   mijnbureau.json: |
     {
       "realm" : "mijnbureau",
@@ -676,7 +676,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap-env-vars: a5f2d2e41d1e5653aa1c160d2f6b4c8556b47f33eecd2206e464c7f39867ccbc
+        checksum/configmap-env-vars: 189ad2ff57102c0d3ab831be65f1d1c619279e841d3f1c834ea3d488645cdaed
         checksum/secrets: e568a22cece184daf9e7aebbd46a16a8061921ad274ce13df5b5c397df96db82
       labels:
         app.kubernetes.io/instance: keycloak-keycloak
@@ -693,7 +693,7 @@ spec:
       automountServiceAccountToken: true
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -705,7 +705,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -744,7 +744,7 @@ spec:
             - -ec
             - |
               . /opt/bitnami/scripts/liblog.sh
-
+        
               info "Copying writable dirs to empty dir"
               # In order to not break the application functionality we need to make some
               # directories writable, so we need to copy it to an empty dir volume
@@ -1136,7 +1136,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: ollama
 spec:
-  strategy:
+  strategy: 
     type: Recreate
   selector:
     matchLabels:
@@ -1456,7 +1456,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -1468,7 +1468,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -1729,7 +1729,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -1741,7 +1741,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -1821,7 +1821,7 @@ spec:
             - name: TYPEORM_TYPE
               value: "postgres"
             - name: GRIST_OIDC_IDP_ISSUER
-              value:
+              value: 
             - name: GRIST_OIDC_IDP_CLIENT_ID
               value: "grist"
             - name: GRIST_OIDC_IDP_CLIENT_SECRET
@@ -2143,16 +2143,16 @@ data:
   REDIS_URL: "redis://default:d493e19ca5f59f819c2b4519ff047d5ec08e37c9@meet-redis-master:6379/1"
   OIDC_RP_CLIENT_ID: "meet"
   OIDC_RP_CLIENT_SECRET: "122de0280d9e97074e7c7a754621399badca2c2b"
-  OIDC_OP_JWKS_ENDPOINT:
-  OIDC_OP_AUTHORIZATION_ENDPOINT:
-  OIDC_OP_TOKEN_ENDPOINT:
-  OIDC_OP_USER_ENDPOINT:
-  OIDC_OP_LOGOUT_ENDPOINT:
+  OIDC_OP_JWKS_ENDPOINT: 
+  OIDC_OP_AUTHORIZATION_ENDPOINT: 
+  OIDC_OP_TOKEN_ENDPOINT: 
+  OIDC_OP_USER_ENDPOINT: 
+  OIDC_OP_LOGOUT_ENDPOINT: 
   OIDC_USERINFO_FULLNAME_FIELDS: "given_name,family_name"
   OIDC_USERINFO_SHORTNAME_FIELD: "given_name"
-  LIVEKIT_API_KEY:
-  LIVEKIT_API_SECRET:
-  LIVEKIT_API_URL:
+  LIVEKIT_API_KEY: 
+  LIVEKIT_API_SECRET: 
+  LIVEKIT_API_URL: 
   RESOURCE_DEFAULT_ACCESS_LEVEL: "restricted"
   ALLOW_UNREGISTERED_ROOMS: "false"
   RECORDING_ENABLE: "false"
@@ -2260,7 +2260,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -2272,7 +2272,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -2372,7 +2372,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -2384,7 +2384,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -2550,7 +2550,7 @@ spec:
               sleep 2
             done
             echo "Database is ready"
-
+          
             python manage.py migrate --no-input
           resources:
             limits:
@@ -2859,7 +2859,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -2871,7 +2871,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -3182,13 +3182,13 @@ data:
       host: "element-redis-master"
       port: 6379
       password: "f6ead0a4d658b508fcea86418dbb9dcf9190f7b9"
-      password_path:
-      dbid:
+      password_path: 
+      dbid: 
       use_tls: false
-      certificate_file:
-      private_key_file:
-      ca_file:
-      ca_path:
+      certificate_file: 
+      private_key_file: 
+      ca_file: 
+      ca_path: 
 
     background_updates:
       background_update_duration_ms: 100
@@ -3241,7 +3241,7 @@ data:
     # Needed for MatrixRTC to avoid stuck calls
     max_event_delay_duration: "24h"
 
-    serve_server_wellknown:
+    serve_server_wellknown: 
     max_avatar_size: "10M"
     allowed_avatar_mimetypes:
       - image/png
@@ -3286,7 +3286,7 @@ data:
     password_config:
       enabled: false
       localdb_enabled: true
-      pepper:
+      pepper: 
       policy:
         enabled: false
         minimum_length: 0
@@ -3471,7 +3471,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -3483,7 +3483,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -4356,7 +4356,7 @@ spec:
           ip: 127.0.0.1
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -4368,7 +4368,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
       initContainers:
@@ -4469,6 +4469,16 @@ metadata:
     nginx.ingress.kubernetes.io/upstream-hash-by: $arg_WOPISrc
 spec:
   rules:
+    - host: "collabora.kubernetes.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: collabora-online
+                port:
+                  name: http
     - host: collabora-online.cloud.first8.nl
       http:
         paths:
@@ -4772,25 +4782,25 @@ metadata:
 data:
   ports.conf: |
     Listen 8080
-
+    
     <IfModule ssl_module>
     	Listen 443
     </IfModule>
-
+    
     <IfModule mod_gnutls.c>
     	Listen 443
     </IfModule>
-
+  
   000-default.conf: |
     <VirtualHost *:8080>
     	ServerName nextcloud.kubernetes.local
     	DocumentRoot /var/www/html
-
+    	
     	<Directory /var/www/html>
     		AllowOverride All
     		Require all granted
     	</Directory>
-
+    	
     	ErrorLog ${APACHE_LOG_DIR}/error.log
     	CustomLog ${APACHE_LOG_DIR}/access.log combined
     </VirtualHost>
@@ -4813,11 +4823,11 @@ data:
   TRUSTED_PROXIES: "10.96.0.0/12"
   FORWARDED_FOR_HEADERS: "X-Forwarded-For"
   OVERWRITEPROTOCOL: https
-
-
+  
+  
   REDIS_HOST: "nextcloud-redis-headless"
   REDIS_HOST_PORT: "6379"
-
+  
   OBJECTSTORE_S3_HOST: "nextcloud-minio"
   OBJECTSTORE_S3_PORT: "9000"
   OBJECTSTORE_S3_BUCKET: "nextcloud"
@@ -4826,7 +4836,7 @@ data:
   OBJECTSTORE_S3_LEGACYAUTH: "false"
   OBJECTSTORE_S3_AUTOCREATE: "false"
   OBJECTSTORE_S3_SSE_C_KEY: ""
-
+  
   POSTGRES_HOST: "nextcloud-postgresql"
   POSTGRES_DB: "nextcloud"
 ---
@@ -4886,23 +4896,23 @@ data:
 
     # Set default quota for new users
     php /var/www/html/occ config:app:set files default_quota --value="10 GB"
-
+  
   user_oidc.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for OIDC Provider setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up OIDC Provider app..."
-
+  
         echo "Installing OIDC Provider app..."
         if ! php /var/www/html/occ app:install user_oidc; then
           echo "WARNING: Failed to install OIDC Provider app (maybe already present)"
         else
           echo "OIDC Provider app installation completed"
         fi
-
+  
         echo "Enabling OIDC Provider app..."
         if ! php /var/www/html/occ app:enable user_oidc; then
           echo "WARNING: Failed to enable OIDC Provider app"
@@ -4921,30 +4931,30 @@ data:
           php /var/www/html/occ config:app:set user_oidc provider-1-bearerProvisioning --value=1
           php /var/www/html/occ config:app:set user_oidc allow_multiple_user_backends  --value=0
         fi
-
+  
         break
       fi
       echo "Waiting for NextCloud... ($counter/60)"
       sleep 5
       counter=$((counter + 5))
     done
-
+  
   richdocuments.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for Rich Documents setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up Rich Documents app..."
-
+  
         echo "Installing Rich Documents app..."
         if ! php /var/www/html/occ app:install richdocuments; then
           echo "WARNING: Failed to install Rich Documents app (maybe already present)"
         else
           echo "Rich Documents app installation completed"
         fi
-
+  
         echo "Enabling Rich Documents app..."
         if ! php /var/www/html/occ app:enable richdocuments; then
           echo "WARNING: Failed to enable Rich Documents app"
@@ -4964,7 +4974,7 @@ data:
         else
             echo "WOPI Allow List configuration completed"
         fi
-
+  
         break
       fi
       echo "Waiting for NextCloud... ($counter/60)"
@@ -4973,23 +4983,23 @@ data:
     done
 
   # Ref: https://github.com/nextcloud/all-in-one/blob/main/Containers/nextcloud/entrypoint.sh#L870
-
+  
   drawio.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for drawio setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up drawio app..."
-
+  
         echo "Installing drawio app..."
         if ! php /var/www/html/occ app:install drawio; then
           echo "WARNING: Failed to install drawio app (maybe already present)"
         else
           echo "drawio app installation completed"
         fi
-
+  
         echo "Enabling drawio app..."
         if ! php /var/www/html/occ app:enable drawio; then
           echo "WARNING: Failed to enable drawio app"
@@ -5002,23 +5012,23 @@ data:
       sleep 5
       counter=$((counter + 5))
     done
-
+  
   deck.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for deck setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up deck app..."
-
+  
         echo "Installing deck app..."
         if ! php /var/www/html/occ app:install deck; then
           echo "WARNING: Failed to install deck app (maybe already present)"
         else
           echo "deck app installation completed"
         fi
-
+  
         echo "Enabling deck app..."
         if ! php /var/www/html/occ app:enable deck; then
           echo "WARNING: Failed to enable deck app"
@@ -5031,23 +5041,23 @@ data:
       sleep 5
       counter=$((counter + 5))
     done
-
+  
   groupfolders.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for groupfolders setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up groupfolders app..."
-
+  
         echo "Installing groupfolders app..."
         if ! php /var/www/html/occ app:install groupfolders; then
           echo "WARNING: Failed to install groupfolders app (maybe already present)"
         else
           echo "groupfolders app installation completed"
         fi
-
+  
         echo "Enabling groupfolders app..."
         if ! php /var/www/html/occ app:enable groupfolders; then
           echo "WARNING: Failed to enable groupfolders app"
@@ -5060,23 +5070,23 @@ data:
       sleep 5
       counter=$((counter + 5))
     done
-
+  
   contacts.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for contacts setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up contacts app..."
-
+  
         echo "Installing contacts app..."
         if ! php /var/www/html/occ app:install contacts; then
           echo "WARNING: Failed to install contacts app (maybe already present)"
         else
           echo "contacts app installation completed"
         fi
-
+  
         echo "Enabling contacts app..."
         if ! php /var/www/html/occ app:enable contacts; then
           echo "WARNING: Failed to enable contacts app"
@@ -5089,23 +5099,23 @@ data:
       sleep 5
       counter=$((counter + 5))
     done
-
+  
   files_accesscontrol.sh: |-
     #!/bin/bash
-
+  
     echo "Waiting for NextCloud to be ready for files access control setup..."
     counter=0
     while [ "$counter" -lt 60 ]; do
       if php /var/www/html/occ status | grep -q "installed: true"; then
         echo "NextCloud is ready, setting up files access control app..."
-
+  
         echo "Installing files access control app..."
         if ! php /var/www/html/occ app:install files_accesscontrol; then
           echo "WARNING: Failed to install files access control app (maybe already present)"
         else
           echo "files access control app installation completed"
         fi
-
+  
         echo "Enabling files access control app..."
         if ! php /var/www/html/occ app:enable files_accesscontrol; then
           echo "WARNING: Failed to enable files access control app"
@@ -5222,7 +5232,7 @@ data:
           'password' => getenv('REDIS_HOST_PASSWORD_FILE') ? trim(file_get_contents(getenv('REDIS_HOST_PASSWORD_FILE'))) : (string) getenv('REDIS_HOST_PASSWORD'),
         ),
       );
-
+    
       if (getenv('REDIS_HOST_PORT') !== false) {
         $CONFIG['redis']['port'] = (int) getenv('REDIS_HOST_PORT');
       } elseif (getenv('REDIS_HOST')[0] != '/') {
@@ -5235,32 +5245,32 @@ data:
     if ($overwriteHost) {
       $CONFIG['overwritehost'] = $overwriteHost;
     }
-
+    
     $overwriteProtocol = getenv('OVERWRITEPROTOCOL');
     if ($overwriteProtocol) {
       $CONFIG['overwriteprotocol'] = $overwriteProtocol;
     }
-
+    
     $overwriteCliUrl = getenv('OVERWRITECLIURL');
     if ($overwriteCliUrl) {
       $CONFIG['overwrite.cli.url'] = $overwriteCliUrl;
     }
-
+    
     $overwriteWebRoot = getenv('OVERWRITEWEBROOT');
     if ($overwriteWebRoot) {
       $CONFIG['overwritewebroot'] = $overwriteWebRoot;
     }
-
+    
     $overwriteCondAddr = getenv('OVERWRITECONDADDR');
     if ($overwriteCondAddr) {
       $CONFIG['overwritecondaddr'] = $overwriteCondAddr;
     }
-
+    
     $trustedProxies = getenv('TRUSTED_PROXIES');
     if ($trustedProxies) {
       $CONFIG['trusted_proxies'] = array_filter(array_map('trim', explode(' ', $trustedProxies)));
     }
-
+    
     $forwardedForHeaders = getenv('FORWARDED_FOR_HEADERS');
     if ($forwardedForHeaders) {
       $CONFIG['forwarded_for_headers'] = array_filter(array_map('trim', explode(' ', $forwardedForHeaders)));
@@ -5291,7 +5301,7 @@ data:
           )
         )
       );
-
+    
       if (getenv('OBJECTSTORE_S3_KEY_FILE')) {
         $CONFIG['objectstore']['arguments']['key'] = trim(file_get_contents(getenv('OBJECTSTORE_S3_KEY_FILE')));
       } elseif (getenv('OBJECTSTORE_S3_KEY')) {
@@ -5299,7 +5309,7 @@ data:
       } else {
         $CONFIG['objectstore']['arguments']['key'] = '';
       }
-
+    
       if (getenv('OBJECTSTORE_S3_SECRET_FILE')) {
         $CONFIG['objectstore']['arguments']['secret'] = trim(file_get_contents(getenv('OBJECTSTORE_S3_SECRET_FILE')));
       } elseif (getenv('OBJECTSTORE_S3_SECRET')) {
@@ -5307,7 +5317,7 @@ data:
       } else {
         $CONFIG['objectstore']['arguments']['secret'] = '';
       }
-
+    
       if (getenv('OBJECTSTORE_S3_SSE_C_KEY_FILE')) {
         $CONFIG['objectstore']['arguments']['sse_c_key'] = trim(file_get_contents(getenv('OBJECTSTORE_S3_SSE_C_KEY_FILE')));
       } elseif (getenv('OBJECTSTORE_S3_SSE_C_KEY')) {
@@ -5360,7 +5370,7 @@ data:
         'mail_from_address' => getenv('MAIL_FROM_ADDRESS'),
         'mail_domain' => getenv('MAIL_DOMAIN'),
       );
-
+    
       if (getenv('SMTP_PASSWORD_FILE')) {
           $CONFIG['mail_smtppassword'] = trim(file_get_contents(getenv('SMTP_PASSWORD_FILE')));
       } elseif (getenv('SMTP_PASSWORD')) {
@@ -5463,7 +5473,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -5475,7 +5485,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -5543,13 +5553,13 @@ spec:
                 secretKeyRef:
                   name: nextcloud
                   key: nextcloud-password
-
+            
             - name: REDIS_HOST_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: nextcloud-externalredis
                   key: password
-
+            
             - name: OBJECTSTORE_S3_KEY
               valueFrom:
                 secretKeyRef:
@@ -5560,7 +5570,7 @@ spec:
                 secretKeyRef:
                   name: nextcloud-externalminio
                   key: password
-
+            
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -6312,16 +6322,16 @@ metadata:
 data: # reset data to make sure only keys defined below remain
 stringData:
   # OpenID Connect settings
-
+  
   OPENPROJECT_OPENID__CONNECT_KEYCLOAK_DISPLAY__NAME: "Keycloak"
   OPENPROJECT_OPENID__CONNECT_KEYCLOAK_HOST: ""
-
+  
   OPENPROJECT_OPENID__CONNECT_KEYCLOAK_IDENTIFIER: "openproject"
   OPENPROJECT_OPENID__CONNECT_KEYCLOAK_SECRET: "38adb1a1b8ae0c1f048bfe05cf430c12d3f1cd26"
-  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_AUTHORIZATION__ENDPOINT:
-  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_TOKEN__ENDPOINT:
-  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_USERINFO__ENDPOINT:
-  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_END__SESSION__ENDPOINT:
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_AUTHORIZATION__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_TOKEN__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_USERINFO__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_END__SESSION__ENDPOINT: 
   OPENPROJECT_OPENID__CONNECT_KEYCLOAK_SCOPE: "[openid]"
 ...
 ---
@@ -6347,10 +6357,10 @@ stringData:
   OPENPROJECT_FOG_CREDENTIALS_AWS__SECRET__ACCESS__KEY: e110a7d80fae3e3cdb0c6f6aacebea2f56195bb4
 
   OPENPROJECT_FOG_CREDENTIALS_ENDPOINT: http://openproject-minio:9000
-
-
+  
+  
   OPENPROJECT_FOG_DIRECTORY: openproject
-  OPENPROJECT_FOG_CREDENTIALS_REGION:
+  OPENPROJECT_FOG_CREDENTIALS_REGION: 
   OPENPROJECT_FOG_CREDENTIALS_PATH__STYLE: "true"
   OPENPROJECT_FOG_CREDENTIALS_AWS__SIGNATURE__VERSION: "4"
   # remove use_iam_profile fallback after some point
@@ -6445,9 +6455,9 @@ spec:
   template:
     metadata:
       annotations:
-
+        
         # annotate pods with env value checksums so changes trigger re-deployments
-
+        
         checksum/env-core: 2e48fb692639e2fae1d132a29ff84b9e8fc5cd39523c25d5153143d4ec15d3b2
         checksum/env-memcached: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         checksum/env-oidc: 5b2071f853217fe04fd9658973661e8001f4ed170240945212e566d795cfbdc4
@@ -6463,13 +6473,13 @@ spec:
         helm.sh/chart: openproject-11.6.1
         openproject/process: cron
         app.kubernetes.io/component: cron
-    spec:
+    spec:      
       imagePullSecrets:
-        - name: ""
+        - name: ""      
       securityContext:
         fsGroup: 1000
       serviceAccountName: openproject
-      volumes:
+      volumes:        
         - name: tmp
           # we can't use emptyDir due to the sticky bit issue
           # see: https://github.com/kubernetes/kubernetes/issues/110835
@@ -6493,9 +6503,9 @@ spec:
                 accessModes: ["ReadWriteOnce"]
                 resources:
                   requests:
-                    storage: 5Gi
+                    storage: 5Gi        
       initContainers:
-        - name: wait-for-db
+        - name: wait-for-db          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -6521,7 +6531,7 @@ spec:
             - secretRef:
                 name: openproject-cron-environment
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
           args:
@@ -6536,13 +6546,13 @@ spec:
               cpu: 500m
               ephemeral-storage: 50Mi
               memory: 512Mi
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
               name: app-tmp
       containers:
-        - name: "cron"
+        - name: "cron"          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -6571,14 +6581,14 @@ spec:
             - bash
             - /app/docker/prod/cron
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
-              name: app-tmp
+              name: app-tmp            
           resources:
             limits:
               cpu: 750m
@@ -6606,7 +6616,7 @@ metadata:
     app.kubernetes.io/component: web
 spec:
   strategy:
-
+    
     type: RollingUpdate
   selector:
     matchLabels:
@@ -6617,9 +6627,9 @@ spec:
   template:
     metadata:
       annotations:
-
+        
         # annotate pods with env value checksums so changes trigger re-deployments
-
+        
         checksum/env-core: 2e48fb692639e2fae1d132a29ff84b9e8fc5cd39523c25d5153143d4ec15d3b2
         checksum/env-memcached: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         checksum/env-oidc: 5b2071f853217fe04fd9658973661e8001f4ed170240945212e566d795cfbdc4
@@ -6634,13 +6644,13 @@ spec:
         helm.sh/chart: openproject-11.6.1
         openproject/process: web
         app.kubernetes.io/component: web
-    spec:
+    spec:      
       imagePullSecrets:
-        - name: ""
+        - name: ""      
       securityContext:
         fsGroup: 1000
       serviceAccountName: openproject
-      volumes:
+      volumes:        
         - name: tmp
           # we can't use emptyDir due to the sticky bit issue
           # see: https://github.com/kubernetes/kubernetes/issues/110835
@@ -6664,9 +6674,9 @@ spec:
                 accessModes: ["ReadWriteOnce"]
                 resources:
                   requests:
-                    storage: 5Gi
+                    storage: 5Gi        
       initContainers:
-        - name: wait-for-db
+        - name: wait-for-db          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -6690,7 +6700,7 @@ spec:
             - secretRef:
                 name: openproject-environment
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
           args:
@@ -6704,13 +6714,13 @@ spec:
               cpu: 500m
               ephemeral-storage: 50Mi
               memory: 512Mi
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
               name: app-tmp
       containers:
-        - name: "openproject"
+        - name: "openproject"          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -6734,16 +6744,16 @@ spec:
             - secretRef:
                 name: openproject-environment
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
           args:
             - /app/docker/prod/web
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
-              name: app-tmp
+              name: app-tmp            
           ports:
             - name: http
               containerPort: 8080
@@ -6815,7 +6825,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-
+    
     type: Recreate
   selector:
     matchLabels:
@@ -6826,9 +6836,9 @@ spec:
   template:
     metadata:
       annotations:
-
+        
         # annotate pods with env value checksums so changes trigger re-deployments
-
+        
         checksum/env-core: 2e48fb692639e2fae1d132a29ff84b9e8fc5cd39523c25d5153143d4ec15d3b2
         checksum/env-memcached: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         checksum/env-oidc: 5b2071f853217fe04fd9658973661e8001f4ed170240945212e566d795cfbdc4
@@ -6843,13 +6853,13 @@ spec:
         helm.sh/chart: openproject-11.6.1
         openproject/process: worker-default
         app.kubernetes.io/component: worker-default
-    spec:
+    spec:      
       imagePullSecrets:
-        - name: ""
+        - name: ""      
       securityContext:
         fsGroup: 1000
       serviceAccountName: openproject
-      volumes:
+      volumes:        
         - name: tmp
           # we can't use emptyDir due to the sticky bit issue
           # see: https://github.com/kubernetes/kubernetes/issues/110835
@@ -6873,9 +6883,9 @@ spec:
                 accessModes: ["ReadWriteOnce"]
                 resources:
                   requests:
-                    storage: 5Gi
+                    storage: 5Gi        
       initContainers:
-        - name: wait-for-db
+        - name: wait-for-db          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -6899,7 +6909,7 @@ spec:
             - secretRef:
                 name: openproject-environment
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
           args:
@@ -6914,13 +6924,13 @@ spec:
               cpu: 500m
               ephemeral-storage: 50Mi
               memory: 512Mi
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
               name: app-tmp
       containers:
-        - name: "openproject"
+        - name: "openproject"          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -6947,16 +6957,16 @@ spec:
             - bash
             - /app/docker/prod/worker
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
             - name: "OPENPROJECT_GOOD_JOB_QUEUES"
               value: ""
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
-              name: app-tmp
+              name: app-tmp            
           resources:
             limits:
               cpu: 750m
@@ -7045,12 +7055,12 @@ spec:
         openproject/process: seeder
         app.kubernetes.io/component: seeder
     spec:
-      serviceAccountName: openproject
+      serviceAccountName: openproject      
       imagePullSecrets:
-        - name: ""
+        - name: ""      
       securityContext:
         fsGroup: 1000
-      volumes:
+      volumes:        
         - name: tmp
           # we can't use emptyDir due to the sticky bit issue
           # see: https://github.com/kubernetes/kubernetes/issues/110835
@@ -7074,7 +7084,7 @@ spec:
                 accessModes: ["ReadWriteOnce"]
                 resources:
                   requests:
-                    storage: 5Gi
+                    storage: 5Gi        
       initContainers:
         - name: check-db-ready
           image: "docker.io/postgres:16"
@@ -7094,7 +7104,7 @@ spec:
             - secretRef:
                 name: openproject-environment
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
           resources:
@@ -7106,11 +7116,11 @@ spec:
               cpu: 500m
               ephemeral-storage: 50Mi
               memory: 512Mi
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
-              name: app-tmp
+              name: app-tmp          
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -7139,7 +7149,7 @@ spec:
             - secretRef:
                 name: openproject-environment
           env:
-
+            
             - name: OPENPROJECT_DB_PASSWORD
               value: 2d818d488752f4ba04f473e4cec6aa74d3429251
           resources:
@@ -7151,11 +7161,11 @@ spec:
               cpu: 500m
               ephemeral-storage: 50Mi
               memory: 512Mi
-          volumeMounts:
+          volumeMounts:            
             - mountPath: /tmp
               name: tmp
             - mountPath: /app/tmp
-              name: app-tmp
+              name: app-tmp                      
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -7568,7 +7578,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -7580,7 +7590,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -8331,7 +8341,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -8343,7 +8353,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -8369,7 +8379,7 @@ spec:
               type: RuntimeDefault
           env:
             - name: BITNAMI_DEBUG
-              value: "false"
+              value: "false"            
             - name: "AI_FEATURE_ENABLED"
               value: "false"
             - name: "API_USERS_LIST_LIMIT"
@@ -8503,15 +8513,15 @@ spec:
             - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
               value: "true"
             - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_JWKS_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_LOGOUT_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_TOKEN_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_USER_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
               value: "[https://docs.kubernetes.local]"
             - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
@@ -8639,7 +8649,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -8651,7 +8661,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -8685,7 +8695,7 @@ spec:
             - -n
             - impress@%h
             - --autoscale=9,3
-          env:
+          env:            
             - name: "AI_FEATURE_ENABLED"
               value: "false"
             - name: "API_USERS_LIST_LIMIT"
@@ -8819,15 +8829,15 @@ spec:
             - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
               value: "true"
             - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_JWKS_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_LOGOUT_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_TOKEN_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_USER_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
               value: "[https://docs.kubernetes.local]"
             - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
@@ -8937,7 +8947,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -8949,7 +8959,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -9063,7 +9073,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -9075,7 +9085,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: Always
@@ -9240,7 +9250,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-migrate-1769594268
+  name: docs-backend-migrate-1769609239
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
@@ -9272,7 +9282,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -9284,7 +9294,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       restartPolicy: OnFailure
       containers:
         - name: docs-backend
@@ -9312,11 +9322,11 @@ spec:
                 echo "Database not ready"
                 sleep 2
               done
-
+            
               echo "Database is ready"
-
+            
               python manage.py migrate --no-input
-          env:
+          env:            
             - name: "AI_FEATURE_ENABLED"
               value: "false"
             - name: "API_USERS_LIST_LIMIT"
@@ -9450,15 +9460,15 @@ spec:
             - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
               value: "true"
             - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_JWKS_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_LOGOUT_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_TOKEN_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_USER_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
               value: "[https://docs.kubernetes.local]"
             - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
@@ -9529,7 +9539,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: docs-backend-createsuperuser-1769594268
+  name: docs-backend-createsuperuser-1769609239
   namespace: "omara-sep"
   labels:
     app.kubernetes.io/instance: docs
@@ -9561,7 +9571,7 @@ spec:
       automountServiceAccountToken: false
       affinity:
         podAffinity:
-
+          
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
@@ -9573,7 +9583,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
-
+          
       restartPolicy: OnFailure
       containers:
         - name: docs-backend
@@ -9601,11 +9611,11 @@ spec:
                 echo "Database not ready"
                 sleep 2
               done
-
+            
               echo "Database is ready"
-
+            
               python manage.py createsuperuser --email $DJANGO_SUPERUSER_EMAIL --password $DJANGO_SUPERUSER_PASSWORD
-          env:
+          env:            
             - name: "AI_FEATURE_ENABLED"
               value: "false"
             - name: "API_USERS_LIST_LIMIT"
@@ -9739,15 +9749,15 @@ spec:
             - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
               value: "true"
             - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_JWKS_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_LOGOUT_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_TOKEN_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_OP_USER_ENDPOINT"
-              value:
+              value: 
             - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
               value: "[https://docs.kubernetes.local]"
             - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
