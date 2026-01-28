@@ -1,0 +1,91 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-release-keycloak
+  namespace: omara-sep
+  uid: 662ac9cb-6e01-414c-b098-e2434d1a7f7d
+  resourceVersion: '389313951'
+  generation: 1
+  creationTimestamp: '2026-01-28T14:38:30Z'
+  labels:
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/instance: my-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/part-of: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging-nginx
+    meta.helm.sh/release-name: my-release
+    meta.helm.sh/release-namespace: omara-sep
+  managedFields:
+    - manager: helm
+      operation: Apply
+      apiVersion: networking.k8s.io/v1
+      time: '2026-01-28T14:38:30Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            f:cert-manager.io/cluster-issuer: {}
+            f:meta.helm.sh/release-name: {}
+            f:meta.helm.sh/release-namespace: {}
+          f:labels:
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/managed-by: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.kubernetes.io/version: {}
+            f:helm.sh/chart: {}
+        f:spec:
+          f:ingressClassName: {}
+          f:rules: {}
+          f:tls: {}
+    - manager: nginx-ingress-controller
+      operation: Update
+      apiVersion: networking.k8s.io/v1
+      time: '2026-01-28T14:38:53Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:loadBalancer:
+            f:ingress: {}
+      subresource: status
+  selfLink: >-
+    /apis/networking.k8s.io/v1/namespaces/omara-sep/ingresses/my-release-keycloak
+status:
+  loadBalancer:
+    ingress:
+      - hostname: cloud.first8.nl
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - omara-sep.cloud.first8.nl
+      secretName: omara-sep.cloud.first8.nl-tls
+    - hosts:
+        - omara-sep.cloud.first8.nl
+      secretName: letsencrypt-nginx-echo
+  rules:
+    - host: omara-sep.cloud.first8.nl
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: my-release-keycloak
+                port:
+                  name: http
+    - host: omara-sep.cloud.first8.nl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 80
