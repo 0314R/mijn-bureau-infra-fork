@@ -593,7 +593,7 @@ ingress:
               service:
                 name: collabora-online
                 port:
-                  number: http
+                  name: http
 
 
 ## @section Default init containers Parameters

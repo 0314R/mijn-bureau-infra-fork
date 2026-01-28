@@ -1,0 +1,33 @@
+# Source: collabora/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: collabora-online
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: collabora-online
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: collabora
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: collabora-0.1.1
+    app.kubernetes.io/component: collabora
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/upstream-hash-by: $arg_WOPISrc
+spec:
+  rules:
+    - host: "collabora.kubernetes.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: collabora-online
+                port:
+                  name: http
