@@ -128,7 +128,7 @@ Return the Database database name
 {{- if .Values.postgresql.enabled }}
     {{- coalesce (((.Values.global).postgresql).auth).database .Values.postgresql.auth.database "postgres" -}}
 {{- else -}}
-    {{- tpl .Values.externalDatabase.database . -}}
+    {{- "name" -}}
 {{- end -}}
 {{- end -}}
 
