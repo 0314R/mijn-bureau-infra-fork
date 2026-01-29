@@ -1297,7 +1297,7 @@ postgresql:
 ##
 externalDatabase:
   host: "postgres-db.omara-sep.svc.cluster.local"
-  port: 5444
+  port: 5432
   user: keycloak-user
   database: keycloak
   schema: public
