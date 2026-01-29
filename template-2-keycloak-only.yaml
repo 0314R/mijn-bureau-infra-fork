@@ -899,7 +899,10 @@ spec:
   tls:
     - hosts:
         - omara-sep.cloud.first8.nl
-      secretName: id.kubernetes.local-tls
+      secretName: omara-sep.cloud.first8.nl-tls
+    - hosts:
+        - omara-sep.cloud.first8.nl
+      secretName: letsencrypt-nginx-echo
 ---
 # Source: keycloak/templates/keycloak-config-cli-job.yaml
 apiVersion: batch/v1
