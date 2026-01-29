@@ -13,12 +13,12 @@ metadata:
   namespace: null
 spec:
   egress:
-  - {}
+    - {}
   podSelector:
     matchLabels:
       app.kubernetes.io/component: keycloak-config-cli
   policyTypes:
-  - Egress
+    - Egress
 ---
 # Source: keycloak/templates/networkpolicy.yaml
 kind: NetworkPolicy
@@ -51,16 +51,16 @@ spec:
         - port: 8080
         - port: 7800
     - from:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: null
-      - podSelector:
-          matchLabels:
-            app.kubernetes.io/component: keycloak-config-cli
-            app.kubernetes.io/name: keycloak
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: null
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: keycloak-config-cli
+              app.kubernetes.io/name: keycloak
       ports:
-      - port: 7800
-      - port: 8080
+        - port: 7800
+        - port: 8080
 ---
 # Source: keycloak/templates/pdb.yaml
 apiVersion: policy/v1
@@ -136,7 +136,7 @@ metadata:
 data:
   BITNAMI_DEBUG: "false"
   KEYCLOAK_PRODUCTION: "true"
-  KC_LOG_LEVEL: "INFO"
+  KC_LOG_LEVEL: "DEBUG"
   KC_LOG_CONSOLE_OUTPUT: "default"
   KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
   KC_BOOTSTRAP_ADMIN_PASSWORD_FILE: /opt/bitnami/keycloak/secrets/admin-password
@@ -145,7 +145,7 @@ data:
   KC_HTTP_ENABLED: "true"
   KC_PROXY_HEADERS: "xforwarded"
   KC_HOSTNAME_STRICT: "false"
-  KC_HOSTNAME: "https://id.kubernetes.local/"
+  KC_HOSTNAME: "https://omara-sep.cloud.first8.nl/"
   KC_METRICS_ENABLED: "false"
   KC_DB_URL: "jdbc:postgresql://postgres-db.omara-sep.svc.cluster.local:5432/keycloak?currentSchema=public"
   KC_DB_SCHEMA: "public"
@@ -177,7 +177,7 @@ data:
     {
       "realm" : "master",
       "attributes": {
-        "frontendUrl": "https://id.kubernetes.local"
+        "frontendUrl": "https://omara-sep.cloud.first8.nl"
       }
     }
 
@@ -720,7 +720,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             privileged: false
             readOnlyRootFilesystem: true
             runAsGroup: 1001
@@ -754,8 +754,8 @@ spec:
               cp -r --preserve=mode,timestamps /opt/bitnami/keycloak/themes /emptydir/app-themes-dir
               info "Copy operation completed"
           volumeMounts:
-           - name: empty-dir
-             mountPath: /emptydir
+            - name: empty-dir
+              mountPath: /emptydir
       containers:
         - name: keycloak
           image: docker.io/bitnamilegacy/keycloak:26.3.3-debian-12-r0
@@ -764,7 +764,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             privileged: false
             readOnlyRootFilesystem: true
             runAsGroup: 1001
@@ -894,10 +894,10 @@ spec:
       http:
         paths:
         - backend:
-            service:
-              name: keycloak
-              port:
-                number: 80
+              service:
+                name: keycloak
+                port:
+                  number: 80
           path: /
           pathType: Prefix
   tls:
@@ -964,7 +964,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             privileged: false
             readOnlyRootFilesystem: true
             runAsGroup: 1001
