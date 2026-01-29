@@ -147,7 +147,7 @@ data:
   KC_HOSTNAME_STRICT: "false"
   KC_HOSTNAME: "https://omara-sep.cloud.first8.nl/"
   KC_METRICS_ENABLED: "false"
-  KC_DB_URL: "jdbc:postgresql://postgres-db.omara-sep.svc.cluster.local:5432/keycloak?currentSchema=public"
+  KC_DB_URL: "jdbc:postgresql://keycloak-postgresql:5432/keycloak?currentSchema=public"
   KC_DB_SCHEMA: "public"
   KC_DB_PASSWORD_FILE: /opt/bitnami/keycloak/secrets/db-password
   KC_DB_USERNAME_FILE: /opt/bitnami/keycloak/secrets/db-username
@@ -676,7 +676,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap-env-vars: 189ad2ff57102c0d3ab831be65f1d1c619279e841d3f1c834ea3d488645cdaed
+        checksum/configmap-env-vars: a5f2d2e41d1e5653aa1c160d2f6b4c8556b47f33eecd2206e464c7f39867ccbc
         checksum/secrets: e568a22cece184daf9e7aebbd46a16a8061921ad274ce13df5b5c397df96db82
       labels:
         app.kubernetes.io/instance: keycloak-keycloak
