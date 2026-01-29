@@ -1,0 +1,291 @@
+
+# Source: element-web/templates/networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: element-web
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: element-web
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/version: 1.12.8
+    helm.sh/chart: element-web-0.1.0
+    app.kubernetes.io/component: element-web
+    app.kubernetes.io/part-of: element-web
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: element-web
+      app.kubernetes.io/name: element-web
+      app.kubernetes.io/component: element-web
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+  ingress:
+    - ports:
+        - port: 8080
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: element-web
+              app.kubernetes.io/name: element-web
+        - podSelector:
+            matchLabels:
+              element-web-client: "true"
+    - ports:
+        - port: 8080
+          protocol: TCP
+---
+# Source: element-web/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: element-web-config
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: element-web
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/version: 1.12.8
+    helm.sh/chart: element-web-0.1.0
+    app.kubernetes.io/component: synapse
+data:
+  config.json: |
+    {
+      "default_server_config": {
+        "m.homeserver": {
+          "base_url": "https://matrix.kubernetes.local",
+          "server_name": "matrix"
+        }
+      },
+      "features": {
+        "feature_pinning": true,
+        "feature_custom_themes": true,
+        "feature_element_call_video_rooms": true,
+        "feature_group_calls": true,
+        "feature_html_topic": true,
+        "feature_ask_to_join": true
+      },
+      "default_federate": true,
+      "default_country_code": "nl",
+      "room_directory": {
+        "servers": ["matrix.kubernetes.local"
+        ]
+      },
+      "setting_defaults": {
+        "breadcrumbs": true
+      },
+      "default_theme": "light",
+      "brand": "matrix element",
+      "permalink_prefix": "https://element.kubernetes.local",
+      "disable_guests": true,
+      "force_verification": false,
+      "logout_redirect_url": "https://element.kubernetes.local",
+      "sso_redirect_options": {
+        "immediate": true
+      },
+      "disable_custom_urls": true,
+      "disable_3pid_login": true,
+      "default_widget_container_height": 280,
+      "show_labs_settings": false,
+      "map_style_url": ""
+    }
+---
+# Source: element-web/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: element-web
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: element-web
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/version: 1.12.8
+    helm.sh/chart: element-web-0.1.0
+    app.kubernetes.io/component: element-web
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: element-web
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/component: element-web
+---
+# Source: element-web/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: element-web
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: element-web
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/version: 1.12.8
+    helm.sh/chart: element-web-0.1.0
+    app.kubernetes.io/component: element-web
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: element-web
+      app.kubernetes.io/name: element-web
+      app.kubernetes.io/component: element-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: element-web
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: element-web
+        app.kubernetes.io/version: 1.12.8
+        helm.sh/chart: element-web-0.1.0
+        app.kubernetes.io/component: element-web
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: element-web
+                    app.kubernetes.io/name: element-web
+                    app.kubernetes.io/component: element-web
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+      containers:
+        - name: "element-web"
+          image: registry-1.docker.io/vectorim/element-web:v1.12.8
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: ELEMENT_WEB_PORT
+              value: "8080"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: element-web-data
+              mountPath: /persist
+            - name: config
+              mountPath: /app/config.json
+              subPath: config.json
+              readOnly: true
+            - mountPath: /etc/nginx/conf.d
+              name: nginx-conf
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: element-web-config
+        - name: element-web-data
+          emptyDir: {}
+        - emptyDir: {}
+          name: nginx-conf
+---
+# Source: element-web/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: element-web
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: element-web
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/version: 1.12.8
+    helm.sh/chart: element-web-0.1.0
+    app.kubernetes.io/component: element-web
+    app.kubernetes.io/part-of: matrix
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: "element.kubernetes.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: element-web
+                port:
+                  name: http

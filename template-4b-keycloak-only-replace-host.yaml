@@ -1,0 +1,1009 @@
+---
+# Source: keycloak/templates/extra-list.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/component: keycloak-keycloak-cli
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak-keycloak-cli
+    app.kubernetes.io/version: 1.0.0
+  name: keycloak-keycloak-cli
+  namespace: null
+spec:
+  egress:
+    - {}
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: keycloak-config-cli
+  policyTypes:
+    - Egress
+---
+# Source: keycloak/templates/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: keycloak-keycloak
+      app.kubernetes.io/name: keycloak
+      app.kubernetes.io/component: keycloak
+      app.kubernetes.io/part-of: keycloak
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    - ports:
+        - port: 8080
+        - port: 7800
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: null
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: keycloak-config-cli
+              app.kubernetes.io/name: keycloak
+      ports:
+        - port: 7800
+        - port: 8080
+---
+# Source: keycloak/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: keycloak-keycloak
+      app.kubernetes.io/name: keycloak
+      app.kubernetes.io/component: keycloak
+      app.kubernetes.io/part-of: keycloak
+---
+# Source: keycloak/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+automountServiceAccountToken: true
+---
+# Source: keycloak/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+type: Opaque
+data:
+  admin-password: "YzIxOWEwZmM4ZGM2YTNhNjg2MzZkNjUxMGQ1NWVjZDMxYjlmYTIyMA=="
+---
+# Source: keycloak/templates/configmap-env-vars.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-keycloak-env-vars
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+data:
+  BITNAMI_DEBUG: "false"
+  KEYCLOAK_PRODUCTION: "true"
+  KC_LOG_LEVEL: "DEBUG"
+  KC_LOG_CONSOLE_OUTPUT: "default"
+  KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+  KC_BOOTSTRAP_ADMIN_PASSWORD_FILE: /opt/bitnami/keycloak/secrets/admin-password
+  KC_HTTP_PORT: "8080"
+  KC_HTTP_MANAGEMENT_PORT: "9000"
+  KC_HTTP_ENABLED: "true"
+  KC_PROXY_HEADERS: "xforwarded"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME: "https://omara-sep.cloud.first8.nl/"
+  KC_METRICS_ENABLED: "false"
+  KC_DB_URL: "jdbc:postgresql://postgres-db.omara-sep.svc.cluster.local:5432/keycloak?currentSchema=public"
+  KC_DB_SCHEMA: "public"
+  KC_DB_PASSWORD_FILE: /opt/bitnami/keycloak/secrets/db-password
+  KC_DB_USERNAME_FILE: /opt/bitnami/keycloak/secrets/db-username
+  KC_CACHE: "ispn"
+  KC_CACHE_STACK: "jdbc-ping"
+  KC_CACHE_CONFIG_FILE: "cache-ispn.xml"
+  JAVA_OPTS_APPEND: "-Djgroups.dns.query=keycloak-keycloak-headless.omara-sep.svc.cluster.local"
+  KC_HTTP_RELATIVE_PATH: "/"
+  KC_SPI_ADMIN_REALM: "master"
+---
+# Source: keycloak/templates/keycloak-config-cli-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-keycloak-keycloak-config-cli-configmap
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak-config-cli
+    app.kubernetes.io/part-of: keycloak
+data:
+  master.json: |
+    {
+      "realm" : "master",
+      "attributes": {
+        "frontendUrl": "https://omara-sep.cloud.first8.nl"
+      }
+    }
+
+  mijnbureau.json: |
+    {
+      "realm" : "mijnbureau",
+      "displayName": "Mijn Bureau",
+      "displayNameHtml": "<b>Mijn Bureau</b>",
+      "defaultSignatureAlgorithm": "RS256",
+      "enabled" : true,
+      "revokeRefreshToken": true,
+      "editUsernameAllowed": false,
+      "registrationAllowed": false,
+      "duplicateEmailsAllowed": false,
+      "rememberMe": true,
+      "loginWithEmailAllowed": true,
+      "bruteForceProtected": true,
+      "permanentLockout": false,
+      "maxTemporaryLockouts": 0,
+      "bruteForceStrategy": "LINEAR",
+      "maxFailureWaitSeconds": 900,
+      "minimumQuickLoginWaitSeconds": 60,
+      "waitIncrementSeconds": 60,
+      "quickLoginCheckMilliSeconds": 1000,
+      "maxDeltaTimeSeconds": 43200,
+      "failureFactor": 30,
+      "clients": [
+        {
+          "clientId": "grist",
+          "name": "Grist",
+          "description": "Smart spreadsheets with Grist",
+          "rootUrl": "https://grist.kubernetes.local",
+          "adminUrl": "https://grist.kubernetes.local/o/docs/admin",
+          "baseUrl": "https://grist.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "54f10422c8c0d965e0d17d4251c1e552cbfa52c7",
+          "redirectUris": [
+            "/oauth2/callback"
+          ],
+          "webOrigins": [
+            "https://grist.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.url": "https://grist.kubernetes.local/o/docs/logout?next=/",
+            "post.logout.redirect.uris": "https://grist.kubernetes.local/*",
+            "frontchannel.logout.session.required": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "display.on.consent.screen": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          }
+        },
+        {
+          "clientId": "synapse",
+          "name": "Chat",
+          "description": "Matrix-based chat with Synapse",
+          "rootUrl": "https://matrix.kubernetes.local",
+          "adminUrl": "https://matrix.kubernetes.local",
+          "baseUrl": "https://matrix.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "0266bd9fc3b036fc2a439a819b5ffabe971afbcc",
+          "redirectUris": [
+            "/_synapse/client/oidc/callback"
+          ],
+          "webOrigins": [
+            "https://matrix.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": false,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://matrix.kubernetes.local/_synapse/client/oidc/backchannel_logout",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.session.required": "true",
+            "post.logout.redirect.uris": "https://matrix.kubernetes.local/*"
+          }
+        },
+        {
+          "clientId": "meet",
+          "name": "Meet",
+          "description": "livekit-based video conferencing with Meet",
+          "rootUrl": "https://meet.kubernetes.local",
+          "adminUrl": "https://meet.kubernetes.local",
+          "baseUrl": "https://meet.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "122de0280d9e97074e7c7a754621399badca2c2b",
+          "redirectUris": [
+            "/*"
+          ],
+          "webOrigins": [
+            "https://meet.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://meet.kubernetes.local/api/v1.0/logout/",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.url": "https://meet.kubernetes.local/api/v1.0/logout/",
+            "post.logout.redirect.uris": "https://meet.kubernetes.local/*",
+            "frontchannel.logout.session.required": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "display.on.consent.screen": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          }
+        },
+        {
+          "clientId": "conversations",
+          "name": "Conversations",
+          "description": "AI assistant with LaSuite conversations",
+          "rootUrl": "https://conversations.kubernetes.local",
+          "adminUrl": "https://conversations.kubernetes.local",
+          "baseUrl": "https://conversations.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "7d2d51171173760c306d39e3bc897b38c43202fe",
+          "redirectUris": [
+            "/*"
+          ],
+          "webOrigins": [
+            "https://conversations.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://conversations.kubernetes.local/api/v1.0/logout/",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.url": "https://conversations.kubernetes.local/api/v1.0/logout/",
+            "post.logout.redirect.uris": "https://conversations.kubernetes.local/*",
+            "frontchannel.logout.session.required": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "display.on.consent.screen": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          }
+        },
+        {
+          "clientId": "drive",
+          "name": "Drive",
+          "description": "AI assistant with LaSuite drive",
+          "rootUrl": "https://drive.kubernetes.local",
+          "adminUrl": "https://drive.kubernetes.local",
+          "baseUrl": "https://drive.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "08962d77054fcd174408605820762a72abe1e0f4",
+          "redirectUris": [
+            "/*"
+          ],
+          "webOrigins": [
+            "https://drive.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://drive.kubernetes.local/api/v1.0/logout/",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.url": "https://drive.kubernetes.local/api/v1.0/logout/",
+            "post.logout.redirect.uris": "https://drive.kubernetes.local/*",
+            "frontchannel.logout.session.required": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "display.on.consent.screen": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          }
+        },
+        {
+          "clientId": "nextcloud",
+          "name": "NextCloud",
+          "description": "File storage and collaboration platform",
+          "rootUrl": "https://nextcloud.kubernetes.local",
+          "adminUrl": "https://nextcloud.kubernetes.local",
+          "baseUrl": "https://nextcloud.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "87f08f73c13e177ea0f2affaaf980ab4dc577aec",
+          "redirectUris": [
+            "/*"
+          ],
+          "webOrigins": [
+            "https://nextcloud.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": false,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://nextcloud.kubernetes.local/index.php/apps/user_oidc/backchannel-logout/keycloak",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.session.required": "true",
+            "post.logout.redirect.uris": "+"
+          }
+        },
+        {
+          "clientId": "openproject",
+          "name": "OpenProject",
+          "description": "File storage and collaboration platform",
+          "rootUrl": "https://openproject.kubernetes.local",
+          "adminUrl": "https://openproject.kubernetes.local",
+          "baseUrl": "https://openproject.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "38adb1a1b8ae0c1f048bfe05cf430c12d3f1cd26",
+          "redirectUris": [
+            "/*"
+          ],
+          "webOrigins": [
+            "https://openproject.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": false,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://openproject.kubernetes.local/auth/oidc-keycloak/backchannel-logout",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.session.required": "true",
+            "post.logout.redirect.uris": "https://openproject.kubernetes.local/*"
+          }
+        },
+        {
+          "clientId": "docs",
+          "name": "Docs",
+          "description": "Docs - Eenvoudig samenwerken aan documenten",
+          "rootUrl": "https://docs.kubernetes.local",
+          "adminUrl": "https://docs.kubernetes.local",
+          "baseUrl": "https://docs.kubernetes.local",
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "0c74f7bb06868201c91a14fba0844f33a5f25738",
+          "redirectUris": [
+            "/*"
+          ],
+          "webOrigins": [
+            "https://docs.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://docs.kubernetes.local/api/v1.0/logout/",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.url": "https://docs.kubernetes.local/api/v1.0/logout/",
+            "post.logout.redirect.uris": "https://docs.kubernetes.local/*",
+            "frontchannel.logout.session.required": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "display.on.consent.screen": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          }
+        },
+        {
+          "clientId": "bureaublad",
+          "name": "bureaublad",
+          "description": "Mijn Bureau bureaublad",
+          "rootUrl": "https://bureaublad.kubernetes.local",
+          "adminUrl": "https://bureaublad.kubernetes.local",
+          "baseUrl": "https://bureaublad.kubernetes.local",
+          "surrogateAuthRequired": false,
+          "enabled": true,
+          "alwaysDisplayInConsole": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "9e40108f9d58b7b74ec8d0edf2b74ca9d53474d8",
+          "redirectUris": [
+            "/api/v1/auth/callback"
+          ],
+          "webOrigins": [
+            "https://bureaublad.kubernetes.local"
+          ],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client.secret.creation.time": "1759388679",
+            "backchannel.logout.session.required": "true",
+            "backchannel.logout.url": "https://bureaublad.kubernetes.local/api/v1/auth/logout",
+            "standard.token.exchange.enabled": "false",
+            "frontchannel.logout.url": "https://bureaublad.kubernetes.local/api/v1/auth/logout",
+            "post.logout.redirect.uris": "https://bureaublad.kubernetes.local/*",
+            "frontchannel.logout.session.required": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "display.on.consent.screen": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          }
+        }
+      ],
+      "internationalizationEnabled": true,
+      "eventsEnabled": true,
+      "eventsExpiration": 86400,
+      "adminEventsEnabled": true,
+      "supportedLocales": [
+        "en",
+        "nl"
+      ],
+      "defaultLocale": "nl"
+    }
+---
+# Source: keycloak/templates/headless-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-keycloak-headless
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+---
+# Source: keycloak/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+---
+# Source: keycloak/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  podManagementPolicy: Parallel
+  serviceName: keycloak-keycloak-headless
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: keycloak-keycloak
+      app.kubernetes.io/name: keycloak
+      app.kubernetes.io/component: keycloak
+      app.kubernetes.io/part-of: keycloak
+  template:
+    metadata:
+      annotations:
+        checksum/configmap-env-vars: 189ad2ff57102c0d3ab831be65f1d1c619279e841d3f1c834ea3d488645cdaed
+        checksum/secrets: e568a22cece184daf9e7aebbd46a16a8061921ad274ce13df5b5c397df96db82
+      labels:
+        app.kubernetes.io/instance: keycloak-keycloak
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: keycloak
+        app.kubernetes.io/version: 26.3.3
+        helm.sh/chart: keycloak-25.2.0
+        app.kubernetes.io/component: keycloak
+        app.kubernetes.io/part-of: keycloak
+    spec:
+      serviceAccountName: keycloak-keycloak
+      imagePullSecrets:
+        - name: null
+      automountServiceAccountToken: true
+      affinity:
+        podAffinity:
+
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: keycloak-keycloak
+                    app.kubernetes.io/name: keycloak
+                    app.kubernetes.io/component: keycloak
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      enableServiceLinks: true
+      initContainers:
+        - name: prepare-write-dirs
+          image: docker.io/bitnamilegacy/keycloak:26.3.3-debian-12-r0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              . /opt/bitnami/scripts/liblog.sh
+
+              info "Copying writable dirs to empty dir"
+              # In order to not break the application functionality we need to make some
+              # directories writable, so we need to copy it to an empty dir volume
+              cp -r --preserve=mode,timestamps /opt/bitnami/keycloak/lib/quarkus /emptydir/app-quarkus-dir
+              cp -r --preserve=mode,timestamps /opt/bitnami/keycloak/data /emptydir/app-data-dir
+              cp -r --preserve=mode,timestamps /opt/bitnami/keycloak/providers /emptydir/app-providers-dir
+              cp -r --preserve=mode,timestamps /opt/bitnami/keycloak/themes /emptydir/app-themes-dir
+              info "Copy operation completed"
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /emptydir
+      containers:
+        - name: keycloak
+          image: docker.io/bitnamilegacy/keycloak:26.3.3-debian-12-r0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: keycloak-keycloak-env-vars
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: discovery
+              containerPort: 7800
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: http
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /realms/master
+              port: http
+              scheme: HTTP
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /bitnami/keycloak
+              subPath: app-volume-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/conf
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/lib/quarkus
+              subPath: app-quarkus-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/data
+              subPath: app-data-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/providers
+              subPath: app-providers-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/themes
+              subPath: app-themes-dir
+            - name: keycloak-secrets
+              mountPath: /opt/bitnami/keycloak/secrets
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: keycloak-secrets
+          projected:
+            sources:
+              - secret:
+                  name: keycloak-keycloak
+              - secret:
+                  name: postgres-auth
+                  items:
+                    - key: password
+                      path: db-password
+                    - key: username
+                      path: db-username
+---
+# Source: keycloak/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-keycloak
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: keycloak
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging-nginx
+status:
+  loadBalancer:
+    ingress:
+      - hostname: cloud.first8.nl
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: omara-sep.cloud.first8.nl
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: keycloak-keycloak
+                port:
+                  name: http
+    - host: omara-sep.cloud.first8.nl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - omara-sep.cloud.first8.nl
+      secretName: omara-sep.cloud.first8.nl-tls
+    - hosts:
+        - omara-sep.cloud.first8.nl
+      secretName: letsencrypt-nginx-echo
+---
+# Source: keycloak/templates/keycloak-config-cli-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-keycloak-keycloak-config-cli
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: keycloak-keycloak
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.3.3
+    helm.sh/chart: keycloak-25.2.0
+    app.kubernetes.io/component: keycloak-config-cli
+    app.kubernetes.io/part-of: keycloak
+  annotations:
+    helm.sh/hook: post-install,post-upgrade,post-rollback
+    helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+    helm.sh/hook-weight: "5"
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: keycloak-keycloak
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: keycloak
+        app.kubernetes.io/version: 26.3.3
+        helm.sh/chart: keycloak-25.2.0
+        app.kubernetes.io/component: keycloak-config-cli
+        app.kubernetes.io/part-of: keycloak
+      annotations:
+        checksum/configuration: 0a461a782087e5cc915b1490c52a6c1a2364c067357d2b582d1b6d1535c1dff0
+    spec:
+      restartPolicy: Never
+      serviceAccountName: keycloak-keycloak
+      imagePullSecrets:
+        - name: null
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      automountServiceAccountToken: true
+      containers:
+        - name: keycloak-config-cli
+          image: docker.io/bitnamilegacy/keycloak-config-cli:6.4.0-debian-12-r9
+          imagePullPolicy: Always
+          command:
+            - java
+          args:
+            - -jar
+            - /opt/bitnami/keycloak-config-cli/keycloak-config-cli.jar
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            # ref: https://github.com/adorsys/keycloak-config-cli?tab=readme-ov-file#configuration
+            - name: KEYCLOAK_URL
+              value: http://keycloak-keycloak-headless:8080/
+            - name: KEYCLOAK_USER
+              value: "admin"
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-keycloak
+                  key: admin-password
+            - name: IMPORT_FILES_LOCATIONS
+              value: /config/*
+            - name: KEYCLOAK_AVAILABILITYCHECK_ENABLED
+              value: "true"
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: config-volume
+              mountPath: /config
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: keycloak-keycloak-keycloak-config-cli-configmap
