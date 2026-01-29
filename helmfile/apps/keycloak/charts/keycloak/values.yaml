@@ -1299,7 +1299,7 @@ externalDatabase:
   host: "postgres-db.omara-sep.svc.cluster.local"
   port: 5432
   user: keycloak-user
-  database: keycloak
+  database: keycloak-changed
   schema: public
 #  password:
   existingSecret: "postgres-auth"
