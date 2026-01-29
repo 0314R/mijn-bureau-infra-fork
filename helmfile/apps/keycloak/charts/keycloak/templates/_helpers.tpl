@@ -110,7 +110,7 @@ Return the Database hostname
 {{- if .Values.postgresql.enabled -}}
     {{- include "keycloak.postgresql.fullname" . -}}{{- if eq .Values.postgresql.architecture "replication" }}-primary{{- end -}}
 {{- else -}}
-    {{- "host" -}}
+    {{- tpl .Values.externalDatabase.host . -}}
 {{- end -}}
 {{- end -}}
 
