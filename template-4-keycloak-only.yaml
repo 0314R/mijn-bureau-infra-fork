@@ -136,7 +136,7 @@ metadata:
 data:
   BITNAMI_DEBUG: "false"
   KEYCLOAK_PRODUCTION: "true"
-  KC_LOG_LEVEL: "INFO"
+  KC_LOG_LEVEL: "DEBUG"
   KC_LOG_CONSOLE_OUTPUT: "default"
   KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
   KC_BOOTSTRAP_ADMIN_PASSWORD_FILE: /opt/bitnami/keycloak/secrets/admin-password
@@ -871,7 +871,10 @@ metadata:
     app.kubernetes.io/part-of: keycloak
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging-nginx
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+status:
+  loadBalancer:
+    ingress:
+      - hostname: cloud.first8.nl
 spec:
   ingressClassName: nginx
   rules:
