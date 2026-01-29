@@ -4479,3 +4479,5515 @@ spec:
                 port:
                   name: http
 
+---
+# Source: nextcloud/templates/networkpolicy-cronjob.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nextcloud-cronjob
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: nextcloud
+      app.kubernetes.io/name: nextcloud
+      app.kubernetes.io/component: nextcloud-cronjob
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 8080
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: keycloak
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+        protocol: TCP
+      to: []
+    - ports:
+      - port: 80
+        protocol: TCP
+      to: []
+  ingress:
+    - ports:
+        - port: 8080
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: nextcloud
+              app.kubernetes.io/name: nextcloud
+        - podSelector:
+            matchLabels:
+              nextcloud-client: "true"
+    - ports:
+      - port: 8080
+        protocol: TCP
+---
+# Source: nextcloud/templates/networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: nextcloud
+      app.kubernetes.io/name: nextcloud
+      app.kubernetes.io/component: nextcloud
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 8080
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: keycloak
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+        protocol: TCP
+      to: []
+    - ports:
+      - port: 80
+        protocol: TCP
+      to: []
+  ingress:
+    - ports:
+        - port: 8080
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: nextcloud
+              app.kubernetes.io/name: nextcloud
+        - podSelector:
+            matchLabels:
+              nextcloud-client: "true"
+    - ports:
+      - port: 8080
+        protocol: TCP
+---
+# Source: nextcloud/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: nextcloud
+      app.kubernetes.io/name: nextcloud
+      app.kubernetes.io/component: nextcloud
+---
+# Source: nextcloud/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+automountServiceAccountToken: true
+---
+# Source: nextcloud/templates/secret-database.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nextcloud-externaldatabase
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+type: Opaque
+data:
+  username: "bmV4dGNsb3Vk"
+  password: "OWZmMjVkN2FmYjE2MzE4ZTE1MTYyZWRlZDlmNmM3MTgyNjQyOGJhMQ=="
+---
+# Source: nextcloud/templates/secret-minio.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nextcloud-externalminio
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+type: Opaque
+data:
+  username: "YWRtaW4="
+  password: "NjJmYjM2MDNjMDE4YzdjYzk1ODlhMzQ2NDA4ODFlMDZhMDRiNmVjOQ=="
+---
+# Source: nextcloud/templates/secret-nextcloud.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+type: Opaque
+data:
+  nextcloud-username: "YWRtaW4="
+  nextcloud-password: "YjBkMzkwZDZjZmEyZTUyYzA0OTQwMzZiYTViMTAzMzY5MDVhNTFkOQ=="
+---
+# Source: nextcloud/templates/secret-redis.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nextcloud-externalredis
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+type: Opaque
+data:
+  password: "ODhmODA4NDRmZTEwM2UxYzVmNDAyMTA5NDBmMjIzYTg0Y2U4YjFkMg=="
+---
+# Source: nextcloud/templates/apache-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-apache-config
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+data:
+  ports.conf: |
+    Listen 8080
+    
+    <IfModule ssl_module>
+    	Listen 443
+    </IfModule>
+    
+    <IfModule mod_gnutls.c>
+    	Listen 443
+    </IfModule>
+  
+  000-default.conf: |
+    <VirtualHost *:8080>
+    	ServerName nextcloud.kubernetes.local
+    	DocumentRoot /var/www/html
+    	
+    	<Directory /var/www/html>
+    		AllowOverride All
+    		Require all granted
+    	</Directory>
+    	
+    	ErrorLog ${APACHE_LOG_DIR}/error.log
+    	CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+---
+# Source: nextcloud/templates/configmap-env-vars.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-env-vars
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+data:
+  NEXTCLOUD_TRUSTED_DOMAINS: "nextcloud.kubernetes.local"
+  TRUSTED_PROXIES: "10.96.0.0/12"
+  FORWARDED_FOR_HEADERS: "X-Forwarded-For"
+  OVERWRITEPROTOCOL: https
+  
+  
+  REDIS_HOST: "nextcloud-redis-headless"
+  REDIS_HOST_PORT: "6379"
+  
+  OBJECTSTORE_S3_HOST: "nextcloud-minio"
+  OBJECTSTORE_S3_PORT: "9000"
+  OBJECTSTORE_S3_BUCKET: "nextcloud"
+  OBJECTSTORE_S3_SSL: "false"
+  OBJECTSTORE_S3_USEPATH_STYLE: "true"
+  OBJECTSTORE_S3_LEGACYAUTH: "false"
+  OBJECTSTORE_S3_AUTOCREATE: "false"
+  OBJECTSTORE_S3_SSE_C_KEY: ""
+  
+  POSTGRES_HOST: "nextcloud-postgresql"
+  POSTGRES_DB: "nextcloud"
+---
+# Source: nextcloud/templates/configmap-script-post-install.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-script-post-install
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud-scripts
+data:
+  general-settings.sh: |-
+    #!/bin/bash
+
+    php /var/www/html/occ background:cron
+    php /var/www/html/occ encryption:enable
+
+    php /var/www/html/occ app:disable dashboard
+    php /var/www/html/occ app:disable nextcloud_announcements
+    php /var/www/html/occ app:disable photos
+    php /var/www/html/occ app:disable recommendations
+    php /var/www/html/occ app:disable weather_status
+    php /var/www/html/occ app:disable firstrunwizard
+    php /var/www/html/occ app:disable notifications
+    php /var/www/html/occ app:disable survey_client
+    php /var/www/html/occ app:disable user_status
+    php /var/www/html/occ app:disable files_reminders
+
+    php /var/www/html/occ app:enable admin_audit
+    php /var/www/html/occ app:enable encryption
+
+    php /var/www/html/occ config:app:set core shareapi_allow_links --value=no
+    php /var/www/html/occ config:app:set core shareapi_default_permissions --value=15
+
+    php /var/www/html/occ config:app:set files_sharing outgoing_server2server_share_enabled --value=no
+    php /var/www/html/occ config:app:set files_sharing incoming_server2server_share_enabled --value=no
+    php /var/www/html/occ config:app:set files_sharing federatedTrustedShareAutoAccept --value=no
+
+    php /var/www/html/occ config:app:set sharebymail sendpasswordmail --value=no
+    php /var/www/html/occ config:app:set sharebymail replyToInitiator --value=no
+
+    php /var/www/html/occ config:app:set files_downloadlimit download --value=10
+    php /var/www/html/occ config:app:set theming name --value=MijnBureau
+    php /var/www/html/occ config:app:set theming backgroundMime --value=backgroundColor
+    php /var/www/html/occ config:app:set theming primary_color --value=#3E3A3A
+    php /var/www/html/occ config:app:set theming background_color --value=#F8F7F7
+    php /var/www/html/occ config:app:set theming disable-user-theming --value=yes
+
+    php /var/www/html/occ config:system:set maintenance_window_start --type=integer --value=1
+    php /var/www/html/occ config:system:set default_phone_region --value=NL
+
+    # Set default quota for new users
+    php /var/www/html/occ config:app:set files default_quota --value="10 GB"
+  
+  user_oidc.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for OIDC Provider setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up OIDC Provider app..."
+  
+        echo "Installing OIDC Provider app..."
+        if ! php /var/www/html/occ app:install user_oidc; then
+          echo "WARNING: Failed to install OIDC Provider app (maybe already present)"
+        else
+          echo "OIDC Provider app installation completed"
+        fi
+  
+        echo "Enabling OIDC Provider app..."
+        if ! php /var/www/html/occ app:enable user_oidc; then
+          echo "WARNING: Failed to enable OIDC Provider app"
+        else
+          echo "OIDC Provider app enablement completed"
+        fi
+        echo "Configuring OIDC provider..."
+        if ! php /var/www/html/occ user_oidc:provider keycloak \
+          --clientid="nextcloud" \
+          --clientsecret="87f08f73c13e177ea0f2affaaf980ab4dc577aec" \
+          --discoveryuri="/.well-known/openid-configuration"; then
+          echo "WARNING: Failed to configure OIDC provider"
+        else
+          echo "OIDC provider configuration completed"
+          php /var/www/html/occ config:app:set user_oidc provider-1-checkBearer --value=1
+          php /var/www/html/occ config:app:set user_oidc provider-1-bearerProvisioning --value=1
+          php /var/www/html/occ config:app:set user_oidc allow_multiple_user_backends  --value=0
+        fi
+  
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+  
+  richdocuments.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for Rich Documents setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up Rich Documents app..."
+  
+        echo "Installing Rich Documents app..."
+        if ! php /var/www/html/occ app:install richdocuments; then
+          echo "WARNING: Failed to install Rich Documents app (maybe already present)"
+        else
+          echo "Rich Documents app installation completed"
+        fi
+  
+        echo "Enabling Rich Documents app..."
+        if ! php /var/www/html/occ app:enable richdocuments; then
+          echo "WARNING: Failed to enable Rich Documents app"
+        else
+          echo "Rich Documents app enablement completed"
+        fi
+        echo "Configuring WOPI URL for richdocuments..."
+        if ! php /var/www/html/occ config:app:set richdocuments wopi_url --value="https://collabora.kubernetes.local"; then
+          echo "WARNING: Failed to configure WOPI URL"
+        else
+          echo "WOPI URL configuration completed"
+        fi
+
+        echo "Configuring WOPI Allow List for richdocuments..."
+        if ! php /var/www/html/occ config:app:set richdocuments wopi_allowlist --value="10.244.0.0/16"; then
+            echo "WARNING: Failed to configure WOPI Allow List"
+        else
+            echo "WOPI Allow List configuration completed"
+        fi
+  
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+
+  # Ref: https://github.com/nextcloud/all-in-one/blob/main/Containers/nextcloud/entrypoint.sh#L870
+  
+  drawio.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for drawio setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up drawio app..."
+  
+        echo "Installing drawio app..."
+        if ! php /var/www/html/occ app:install drawio; then
+          echo "WARNING: Failed to install drawio app (maybe already present)"
+        else
+          echo "drawio app installation completed"
+        fi
+  
+        echo "Enabling drawio app..."
+        if ! php /var/www/html/occ app:enable drawio; then
+          echo "WARNING: Failed to enable drawio app"
+        else
+          echo "drawio app enablement completed"
+        fi
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+  
+  deck.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for deck setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up deck app..."
+  
+        echo "Installing deck app..."
+        if ! php /var/www/html/occ app:install deck; then
+          echo "WARNING: Failed to install deck app (maybe already present)"
+        else
+          echo "deck app installation completed"
+        fi
+  
+        echo "Enabling deck app..."
+        if ! php /var/www/html/occ app:enable deck; then
+          echo "WARNING: Failed to enable deck app"
+        else
+          echo "deck app enablement completed"
+        fi
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+  
+  groupfolders.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for groupfolders setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up groupfolders app..."
+  
+        echo "Installing groupfolders app..."
+        if ! php /var/www/html/occ app:install groupfolders; then
+          echo "WARNING: Failed to install groupfolders app (maybe already present)"
+        else
+          echo "groupfolders app installation completed"
+        fi
+  
+        echo "Enabling groupfolders app..."
+        if ! php /var/www/html/occ app:enable groupfolders; then
+          echo "WARNING: Failed to enable groupfolders app"
+        else
+          echo "groupfolders app enablement completed"
+        fi
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+  
+  contacts.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for contacts setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up contacts app..."
+  
+        echo "Installing contacts app..."
+        if ! php /var/www/html/occ app:install contacts; then
+          echo "WARNING: Failed to install contacts app (maybe already present)"
+        else
+          echo "contacts app installation completed"
+        fi
+  
+        echo "Enabling contacts app..."
+        if ! php /var/www/html/occ app:enable contacts; then
+          echo "WARNING: Failed to enable contacts app"
+        else
+          echo "contacts app enablement completed"
+        fi
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+  
+  files_accesscontrol.sh: |-
+    #!/bin/bash
+  
+    echo "Waiting for NextCloud to be ready for files access control setup..."
+    counter=0
+    while [ "$counter" -lt 60 ]; do
+      if php /var/www/html/occ status | grep -q "installed: true"; then
+        echo "NextCloud is ready, setting up files access control app..."
+  
+        echo "Installing files access control app..."
+        if ! php /var/www/html/occ app:install files_accesscontrol; then
+          echo "WARNING: Failed to install files access control app (maybe already present)"
+        else
+          echo "files access control app installation completed"
+        fi
+  
+        echo "Enabling files access control app..."
+        if ! php /var/www/html/occ app:enable files_accesscontrol; then
+          echo "WARNING: Failed to enable files access control app"
+        else
+          echo "files access control app enablement completed"
+        fi
+        break
+      fi
+      echo "Waiting for NextCloud... ($counter/60)"
+      sleep 5
+      counter=$((counter + 5))
+    done
+---
+# Source: nextcloud/templates/nextcloud-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-config
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+data:
+  .htaccess: |-
+    # line below if for Apache 2.4
+    <ifModule mod_authz_core.c>
+    Require all denied
+    </ifModule>
+    # line below if for Apache 2.2
+    <ifModule !mod_authz_core.c>
+    deny from all
+    </ifModule>
+    # section for Apache 2.2 and 2.4
+    <ifModule mod_autoindex.c>
+    IndexIgnore *
+    </ifModule>
+  apache-pretty-urls.config.php: |-
+    <?php
+    $CONFIG = array (
+      'htaccess.RewriteBase' => '/',
+    );
+  apcu.config.php: |-
+    <?php
+    $CONFIG = array (
+      'memcache.local' => '\OC\Memcache\APCu',
+    );
+  apps.config.php: |-
+    <?php
+    $CONFIG = array (
+      'apps_paths' => array (
+          0 => array (
+                  'path'     => OC::$SERVERROOT.'/apps',
+                  'url'      => '/apps',
+                  'writable' => false,
+          ),
+          1 => array (
+                  'path'     => OC::$SERVERROOT.'/custom_apps',
+                  'url'      => '/custom_apps',
+                  'writable' => true,
+          ),
+      ),
+    );
+  autoconfig.php: |-
+    <?php
+    $autoconfig_enabled = false;
+    if (getenv('SQLITE_DATABASE')) {
+        $AUTOCONFIG["dbtype"] = "sqlite";
+        $AUTOCONFIG["dbname"] = getenv('SQLITE_DATABASE');
+        $autoconfig_enabled = true;
+    } elseif (getenv('MYSQL_DATABASE_FILE') && getenv('MYSQL_USER_FILE') && getenv('MYSQL_PASSWORD_FILE') && getenv('MYSQL_HOST')) {
+        $AUTOCONFIG['dbtype'] = 'mysql';
+        $AUTOCONFIG['dbname'] = trim(file_get_contents(getenv('MYSQL_DATABASE_FILE')));
+        $AUTOCONFIG['dbuser'] = trim(file_get_contents(getenv('MYSQL_USER_FILE')));
+        $AUTOCONFIG['dbpass'] = trim(file_get_contents(getenv('MYSQL_PASSWORD_FILE')));
+        $AUTOCONFIG['dbhost'] = getenv('MYSQL_HOST');
+        $autoconfig_enabled = true;
+    } elseif (getenv('MYSQL_DATABASE') && getenv('MYSQL_USER') && getenv('MYSQL_PASSWORD') && getenv('MYSQL_HOST')) {
+        $AUTOCONFIG["dbtype"] = "mysql";
+        $AUTOCONFIG["dbname"] = getenv('MYSQL_DATABASE');
+        $AUTOCONFIG["dbuser"] = getenv('MYSQL_USER');
+        $AUTOCONFIG["dbpass"] = getenv('MYSQL_PASSWORD');
+        $AUTOCONFIG["dbhost"] = getenv('MYSQL_HOST');
+        $autoconfig_enabled = true;
+    } elseif (getenv('POSTGRES_DB_FILE') && getenv('POSTGRES_USER_FILE') && getenv('POSTGRES_PASSWORD_FILE') && getenv('POSTGRES_HOST')) {
+        $AUTOCONFIG['dbtype'] = 'pgsql';
+        $AUTOCONFIG['dbname'] = trim(file_get_contents(getenv('POSTGRES_DB_FILE')));
+        $AUTOCONFIG['dbuser'] = trim(file_get_contents(getenv('POSTGRES_USER_FILE')));
+        $AUTOCONFIG['dbpass'] = trim(file_get_contents(getenv('POSTGRES_PASSWORD_FILE')));
+        $AUTOCONFIG['dbhost'] = getenv('POSTGRES_HOST');
+        $autoconfig_enabled = true;
+    } elseif (getenv('POSTGRES_DB') && getenv('POSTGRES_USER') && getenv('POSTGRES_PASSWORD') && getenv('POSTGRES_HOST')) {
+        $AUTOCONFIG["dbtype"] = "pgsql";
+        $AUTOCONFIG["dbname"] = getenv('POSTGRES_DB');
+        $AUTOCONFIG["dbuser"] = getenv('POSTGRES_USER');
+        $AUTOCONFIG["dbpass"] = getenv('POSTGRES_PASSWORD');
+        $AUTOCONFIG["dbhost"] = getenv('POSTGRES_HOST');
+        $autoconfig_enabled = true;
+    }
+    if ($autoconfig_enabled) {
+        $AUTOCONFIG["directory"] = getenv('NEXTCLOUD_DATA_DIR') ?: "/var/www/html/data";
+    }
+  redis.config.php: |-
+    <?php
+    if (getenv('REDIS_HOST')) {
+      $CONFIG = array(
+        'memcache.distributed' => '\OC\Memcache\Redis',
+        'memcache.locking' => '\OC\Memcache\Redis',
+        'redis' => array(
+          'host' => getenv('REDIS_HOST'),
+          'password' => getenv('REDIS_HOST_PASSWORD_FILE') ? trim(file_get_contents(getenv('REDIS_HOST_PASSWORD_FILE'))) : (string) getenv('REDIS_HOST_PASSWORD'),
+        ),
+      );
+    
+      if (getenv('REDIS_HOST_PORT') !== false) {
+        $CONFIG['redis']['port'] = (int) getenv('REDIS_HOST_PORT');
+      } elseif (getenv('REDIS_HOST')[0] != '/') {
+        $CONFIG['redis']['port'] = 6379;
+      }
+    }
+  reverse-proxy.config.php: |-
+    <?php
+    $overwriteHost = getenv('OVERWRITEHOST');
+    if ($overwriteHost) {
+      $CONFIG['overwritehost'] = $overwriteHost;
+    }
+    
+    $overwriteProtocol = getenv('OVERWRITEPROTOCOL');
+    if ($overwriteProtocol) {
+      $CONFIG['overwriteprotocol'] = $overwriteProtocol;
+    }
+    
+    $overwriteCliUrl = getenv('OVERWRITECLIURL');
+    if ($overwriteCliUrl) {
+      $CONFIG['overwrite.cli.url'] = $overwriteCliUrl;
+    }
+    
+    $overwriteWebRoot = getenv('OVERWRITEWEBROOT');
+    if ($overwriteWebRoot) {
+      $CONFIG['overwritewebroot'] = $overwriteWebRoot;
+    }
+    
+    $overwriteCondAddr = getenv('OVERWRITECONDADDR');
+    if ($overwriteCondAddr) {
+      $CONFIG['overwritecondaddr'] = $overwriteCondAddr;
+    }
+    
+    $trustedProxies = getenv('TRUSTED_PROXIES');
+    if ($trustedProxies) {
+      $CONFIG['trusted_proxies'] = array_filter(array_map('trim', explode(' ', $trustedProxies)));
+    }
+    
+    $forwardedForHeaders = getenv('FORWARDED_FOR_HEADERS');
+    if ($forwardedForHeaders) {
+      $CONFIG['forwarded_for_headers'] = array_filter(array_map('trim', explode(' ', $forwardedForHeaders)));
+    }
+  s3.config.php: |-
+    <?php
+    if (getenv('OBJECTSTORE_S3_BUCKET')) {
+      $use_ssl = getenv('OBJECTSTORE_S3_SSL');
+      $use_path = getenv('OBJECTSTORE_S3_USEPATH_STYLE');
+      $use_legacyauth = getenv('OBJECTSTORE_S3_LEGACYAUTH');
+      $autocreate = getenv('OBJECTSTORE_S3_AUTOCREATE');
+      $CONFIG = array(
+        'objectstore' => array(
+          'class' => '\OC\Files\ObjectStore\S3',
+          'arguments' => array(
+            'bucket' => getenv('OBJECTSTORE_S3_BUCKET'),
+            'region' => getenv('OBJECTSTORE_S3_REGION') ?: '',
+            'hostname' => getenv('OBJECTSTORE_S3_HOST') ?: '',
+            'port' => getenv('OBJECTSTORE_S3_PORT') ?: '',
+            'storageClass' => getenv('OBJECTSTORE_S3_STORAGE_CLASS') ?: '',
+            'objectPrefix' => getenv("OBJECTSTORE_S3_OBJECT_PREFIX") ? getenv("OBJECTSTORE_S3_OBJECT_PREFIX") : "urn:oid:",
+            'autocreate' => strtolower($autocreate) !== 'false',
+            'use_ssl' => strtolower($use_ssl) !== 'false',
+            // required for some non Amazon S3 implementations
+            'use_path_style' => strtolower($use_path) !== 'false',
+            // required for older protocol versions
+            'legacy_auth' => $use_legacyauth == true && strtolower($use_legacyauth) !== 'false'
+          )
+        )
+      );
+    
+      if (getenv('OBJECTSTORE_S3_KEY_FILE')) {
+        $CONFIG['objectstore']['arguments']['key'] = trim(file_get_contents(getenv('OBJECTSTORE_S3_KEY_FILE')));
+      } elseif (getenv('OBJECTSTORE_S3_KEY')) {
+        $CONFIG['objectstore']['arguments']['key'] = getenv('OBJECTSTORE_S3_KEY');
+      } else {
+        $CONFIG['objectstore']['arguments']['key'] = '';
+      }
+    
+      if (getenv('OBJECTSTORE_S3_SECRET_FILE')) {
+        $CONFIG['objectstore']['arguments']['secret'] = trim(file_get_contents(getenv('OBJECTSTORE_S3_SECRET_FILE')));
+      } elseif (getenv('OBJECTSTORE_S3_SECRET')) {
+        $CONFIG['objectstore']['arguments']['secret'] = getenv('OBJECTSTORE_S3_SECRET');
+      } else {
+        $CONFIG['objectstore']['arguments']['secret'] = '';
+      }
+    
+      if (getenv('OBJECTSTORE_S3_SSE_C_KEY_FILE')) {
+        $CONFIG['objectstore']['arguments']['sse_c_key'] = trim(file_get_contents(getenv('OBJECTSTORE_S3_SSE_C_KEY_FILE')));
+      } elseif (getenv('OBJECTSTORE_S3_SSE_C_KEY')) {
+        $CONFIG['objectstore']['arguments']['sse_c_key'] = getenv('OBJECTSTORE_S3_SSE_C_KEY');
+      }
+    }
+  swift.config.php: |-
+    <?php
+    if (getenv('OBJECTSTORE_SWIFT_URL')) {
+        $autocreate = getenv('OBJECTSTORE_SWIFT_AUTOCREATE');
+      $CONFIG = array(
+        'objectstore' => [
+          'class' => 'OC\\Files\\ObjectStore\\Swift',
+          'arguments' => [
+            'autocreate' => $autocreate == true && strtolower($autocreate) !== 'false',
+            'user' => [
+              'name' => getenv('OBJECTSTORE_SWIFT_USER_NAME'),
+              'password' => getenv('OBJECTSTORE_SWIFT_USER_PASSWORD'),
+              'domain' => [
+                'name' => (getenv('OBJECTSTORE_SWIFT_USER_DOMAIN')) ?: 'Default',
+              ],
+            ],
+            'scope' => [
+              'project' => [
+                'name' => getenv('OBJECTSTORE_SWIFT_PROJECT_NAME'),
+                'domain' => [
+                  'name' => (getenv('OBJECTSTORE_SWIFT_PROJECT_DOMAIN')) ?: 'Default',
+                ],
+              ],
+            ],
+            'serviceName' => (getenv('OBJECTSTORE_SWIFT_SERVICE_NAME')) ?: 'swift',
+            'region' => getenv('OBJECTSTORE_SWIFT_REGION'),
+            'url' => getenv('OBJECTSTORE_SWIFT_URL'),
+            'bucket' => getenv('OBJECTSTORE_SWIFT_CONTAINER_NAME'),
+          ]
+        ]
+      );
+    }
+  smtp.config.php: |-
+    <?php
+    if (getenv('SMTP_HOST') && getenv('MAIL_FROM_ADDRESS') && getenv('MAIL_DOMAIN')) {
+      $CONFIG = array (
+        'mail_smtpmode' => 'smtp',
+        'mail_smtphost' => getenv('SMTP_HOST'),
+        'mail_smtpport' => getenv('SMTP_PORT') ?: (getenv('SMTP_SECURE') ? 465 : 25),
+        'mail_smtpsecure' => getenv('SMTP_SECURE') ?: '',
+        'mail_smtpauth' => getenv('SMTP_NAME') && (getenv('SMTP_PASSWORD') || getenv('SMTP_PASSWORD_FILE')),
+        'mail_smtpauthtype' => getenv('SMTP_AUTHTYPE') ?: 'LOGIN',
+        'mail_smtpname' => getenv('SMTP_NAME') ?: '',
+        'mail_from_address' => getenv('MAIL_FROM_ADDRESS'),
+        'mail_domain' => getenv('MAIL_DOMAIN'),
+      );
+    
+      if (getenv('SMTP_PASSWORD_FILE')) {
+          $CONFIG['mail_smtppassword'] = trim(file_get_contents(getenv('SMTP_PASSWORD_FILE')));
+      } elseif (getenv('SMTP_PASSWORD')) {
+          $CONFIG['mail_smtppassword'] = getenv('SMTP_PASSWORD');
+      } else {
+          $CONFIG['mail_smtppassword'] = '';
+      }
+    }
+  upgrade-disable-web.config.php: |-
+    <?php
+    $CONFIG = array (
+      'upgrade.disable-web' => true,
+    );
+  empty-skeleton.config.php: |-
+    <?php
+    $CONFIG = array (
+      'skeletondirectory' => '/var/www/html/empty-skeleton',
+    );
+---
+# Source: nextcloud/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---
+# Source: nextcloud/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/component: nextcloud
+---
+# Source: nextcloud/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: nextcloud
+      app.kubernetes.io/name: nextcloud
+      app.kubernetes.io/component: nextcloud
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: nextcloud
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: nextcloud
+        app.kubernetes.io/version: 32.0.5
+        helm.sh/chart: nextcloud-0.1.0
+        app.kubernetes.io/component: nextcloud
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: nextcloud
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: nextcloud
+                    app.kubernetes.io/name: nextcloud
+                    app.kubernetes.io/component: nextcloud
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+        - name: "nextcloud-php-provisioning"
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          image: registry-1.docker.io/library/nextcloud:32.0.5-apache
+          imagePullPolicy: Always
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              #!/bin/bash
+
+              echo "Start provisioning"
+              cp /usr/local/etc/php/php.ini-production /shared/php.ini
+              mkdir -p /shared/conf.d
+              echo "Setup default PHP config"
+              cp /usr/local/etc/php/conf.d/*.ini /shared/conf.d/
+              if [ -d /php-configs ]; then
+                echo "Setup custom PHP config"
+                cp /php-configs/* /shared/conf.d/
+              fi
+              echo "Provisioning completed"
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /shared
+      containers:
+        - name: "nextcloud"
+          image: registry-1.docker.io/library/nextcloud:32.0.5-apache
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: NEXTCLOUD_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud
+                  key: nextcloud-username
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud
+                  key: nextcloud-password
+            
+            - name: REDIS_HOST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-externalredis
+                  key: password
+            
+            - name: OBJECTSTORE_S3_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-externalminio
+                  key: username
+            - name: OBJECTSTORE_S3_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-externalminio
+                  key: password
+            
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-externaldatabase
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-externaldatabase
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: nextcloud-env-vars
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 8080
+          lifecycle:
+          volumeMounts:
+            - name: post-install-dir
+              mountPath: /docker-entrypoint-hooks.d/post-installation
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /usr/local/etc/php/php.ini
+              subPath: php.ini
+            - name: empty-dir
+              mountPath: /usr/local/etc/php/conf.d
+              subPath: conf.d
+            - name: empty-dir
+              mountPath: /var/run/apache2
+              subPath: apache-run
+            - name: nextcloud-data
+              mountPath: /var/www/
+              subPath: root
+            - name: nextcloud-data
+              mountPath: /var/www/html
+              subPath: html
+            - name: nextcloud-data
+              mountPath: /var/www/html/config
+              subPath: config
+            - name: nextcloud-data
+              mountPath: /var/www/html/custom_apps
+              subPath: custom_apps
+            - name: nextcloud-data
+              mountPath: /var/www/tmp
+              subPath: tmp
+            - name: nextcloud-data
+              mountPath: /var/www/html/themes
+              subPath: themes
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/.htaccess
+              subPath: .htaccess
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/apache-pretty-urls.config.php
+              subPath: apache-pretty-urls.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/apcu.config.php
+              subPath: apcu.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/apps.config.php
+              subPath: apps.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/autoconfig.php
+              subPath: autoconfig.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/empty-skeleton.config.php
+              subPath: empty-skeleton.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/redis.config.php
+              subPath: redis.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/reverse-proxy.config.php
+              subPath: reverse-proxy.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/s3.config.php
+              subPath: s3.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/smtp.config.php
+              subPath: smtp.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/swift.config.php
+              subPath: swift.config.php
+            - name: nextcloud-config
+              mountPath: /var/www/html/config/upgrade-disable-web.config.php
+              subPath: upgrade-disable-web.config.php
+            - name: nextcloud-apache-config
+              mountPath: /etc/apache2/ports.conf
+              subPath: ports.conf
+            - name: nextcloud-apache-config
+              mountPath: /etc/apache2/sites-available/000-default.conf
+              subPath: 000-default.conf
+      volumes:
+        - name: post-install-dir
+          configMap:
+            name: nextcloud-script-post-install
+            defaultMode: 0755
+        - name: empty-dir
+          emptyDir: {}
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: nextcloud
+        - name: nextcloud-config
+          configMap:
+            name: nextcloud-config
+        - name: nextcloud-apache-config
+          configMap:
+            name: nextcloud-apache-config
+---
+# Source: nextcloud/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nextcloud
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+---
+# Source: nextcloud/templates/cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nextcloud-cronjob
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud-cronjob
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 60
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 120
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: nextcloud
+            app.kubernetes.io/instance: nextcloud
+            app.kubernetes.io/component: nextcloud-cronjob
+        spec:
+          imagePullSecrets:
+            - name: null
+          restartPolicy: OnFailure
+          serviceAccountName: nextcloud
+          initContainers:
+            - name: "nextcloud-php-provisioning"
+              image: registry-1.docker.io/library/nextcloud:32.0.5-apache
+              imagePullPolicy: Always
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  #!/bin/bash
+
+                  echo "Start provisioning"
+                  cp /usr/local/etc/php/php.ini-production /shared/php.ini
+                  mkdir -p /shared/conf.d
+                  echo "Setup default PHP config"
+                  cp /usr/local/etc/php/conf.d/*.ini /shared/conf.d/
+                  if [ -d /php-configs ]; then
+                    echo "Setup custom PHP config"
+                    cp /php-configs/* /shared/conf.d/
+                  fi
+                  echo "Provisioning completed"
+              volumeMounts:
+                - name: empty-dir
+                  mountPath: /shared
+
+          containers:
+            - name: nextcloud-cronjob
+              image: registry-1.docker.io/library/nextcloud:32.0.5-apache
+              imagePullPolicy: Always
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                  - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+                seLinuxOptions: {}
+                seccompProfile:
+                  type: RuntimeDefault
+              command:
+                - /bin/sh
+              args:
+                - -c
+                - |
+                  php -f /var/www/html/cron.php
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 64Mi
+              env:
+                - name: NEXTCLOUD_ADMIN_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: nextcloud
+                      key: nextcloud-username
+                - name: NEXTCLOUD_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: nextcloud
+                      key: nextcloud-password
+                - name: REDIS_HOST_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: nextcloud-externalredis
+                      key: password
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: nextcloud-externaldatabase
+                      key: username
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: nextcloud-externaldatabase
+                      key: password
+              envFrom:
+                - configMapRef:
+                    name: nextcloud-env-vars
+              volumeMounts:
+                - name: empty-dir
+                  mountPath: /tmp
+                  subPath: tmp-dir
+                - name: empty-dir
+                  mountPath: /usr/local/etc/php/php.ini
+                  subPath: php.ini
+                - name: empty-dir
+                  mountPath: /usr/local/etc/php/conf.d
+                  subPath: conf.d
+                - name: empty-dir
+                  mountPath: /var/run/apache2
+                  subPath: apache-run
+                - name: nextcloud-data
+                  mountPath: /var/www/
+                  subPath: root
+                - name: nextcloud-data
+                  mountPath: /var/www/html
+                  subPath: html
+                - name: nextcloud-data
+                  mountPath: /var/www/html/config
+                  subPath: config
+                - name: nextcloud-data
+                  mountPath: /var/www/html/custom_apps
+                  subPath: custom_apps
+                - name: nextcloud-data
+                  mountPath: /var/www/tmp
+                  subPath: tmp
+                - name: nextcloud-data
+                  mountPath: /var/www/html/themes
+                  subPath: themes
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/.htaccess
+                  subPath: .htaccess
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/apache-pretty-urls.config.php
+                  subPath: apache-pretty-urls.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/apcu.config.php
+                  subPath: apcu.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/apps.config.php
+                  subPath: apps.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/autoconfig.php
+                  subPath: autoconfig.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/empty-skeleton.config.php
+                  subPath: empty-skeleton.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/redis.config.php
+                  subPath: redis.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/reverse-proxy.config.php
+                  subPath: reverse-proxy.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/s3.config.php
+                  subPath: s3.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/smtp.config.php
+                  subPath: smtp.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/swift.config.php
+                  subPath: swift.config.php
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config/upgrade-disable-web.config.php
+                  subPath: upgrade-disable-web.config.php
+                - name: nextcloud-apache-config
+                  mountPath: /etc/apache2/ports.conf
+                  subPath: ports.conf
+                - name: nextcloud-apache-config
+                  mountPath: /etc/apache2/sites-available/000-default.conf
+                  subPath: 000-default.conf
+          volumes:
+            - name: empty-dir
+              emptyDir: {}
+            - name: nextcloud-data
+              persistentVolumeClaim:
+                claimName: nextcloud
+            - name: nextcloud-config
+              configMap:
+                name: nextcloud-config
+            - name: nextcloud-apache-config
+              configMap:
+                name: nextcloud-apache-config
+---
+# Source: nextcloud/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/version: 32.0.5
+    helm.sh/chart: nextcloud-0.1.0
+    app.kubernetes.io/component: nextcloud
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: nextcloud.kubernetes.local
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: nextcloud
+                port:
+                  name: http
+
+---
+# Source: openproject/templates/cron-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openproject-cron
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: cron
+    app.kubernetes.io/component: cron
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: cron
+      app.kubernetes.io/component: cron
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+  ingress:
+    - ports:
+        - port: 8080
+---
+# Source: openproject/templates/hocuspocus-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openproject-hocuspocus
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: hocuspocus
+    app.kubernetes.io/component: hocuspocus
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: hocuspocus
+      app.kubernetes.io/component: hocuspocus
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+  ingress:
+    - ports:
+        - port: 1234
+---
+# Source: openproject/templates/seeder-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openproject-seeder
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: seeder
+    app.kubernetes.io/component: seeder
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: seeder
+      app.kubernetes.io/component: seeder
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+  ingress:
+    - ports:
+        - port: 8080
+---
+# Source: openproject/templates/web-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openproject-web
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: web
+    app.kubernetes.io/component: web
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: web
+      app.kubernetes.io/component: web
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+  ingress:
+    - ports:
+        - port: 8080
+---
+# Source: openproject/templates/worker-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openproject-worker-default
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: worker-default
+    app.kubernetes.io/component: worker-default
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: worker-default
+      app.kubernetes.io/component: worker-default
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+  ingress:
+    - ports:
+        - port: 8080
+---
+# Source: openproject/templates/serviceaccount.yaml
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: openproject
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: openproject
+...
+---
+# Source: openproject/templates/secret_core.yaml
+apiVersion: "v1"
+kind: "Secret"
+metadata:
+  name: "openproject-core"
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: openproject
+data: # reset data to make sure only keys defined below remain
+stringData:
+  DATABASE_HOST: "openproject-postgresql"
+  DATABASE_PORT: "5432"
+  DATABASE_URL: "postgresql://openproject@openproject-postgresql:5432/openproject"
+  OPENPROJECT_SEED_ADMIN_USER_PASSWORD: "fe1f492c68fe4180f3229feb275e7e3a13d3254f"
+  OPENPROJECT_SEED_ADMIN_USER_PASSWORD_RESET: "true"
+  OPENPROJECT_SEED_ADMIN_USER_NAME: "admin"
+  OPENPROJECT_SEED_ADMIN_USER_MAIL: "admin@example.com"
+  OPENPROJECT_HTTPS: "true"
+  OPENPROJECT_SEED_LOCALE: "nl"
+  OPENPROJECT_HOST__NAME: "openproject.kubernetes.local"
+  OPENPROJECT_HSTS: "true"
+  OPENPROJECT_RAILS__CACHE__STORE: "redis"
+  OPENPROJECT_RAILS__RELATIVE__URL__ROOT: ""
+  POSTGRES_STATEMENT_TIMEOUT: "120s"
+...
+---
+# Source: openproject/templates/secret_environment.yaml
+apiVersion: "v1"
+kind: "Secret"
+metadata:
+  name: "openproject-environment"
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: openproject
+data: # reset data to make sure only keys defined below remain
+stringData:
+  # Additional environment variables
+  OPENPROJECT_CACHE__REDIS__URL: "redis://default:d07795f020d33d57bb6e3c3644bcd75532596b18@openproject-redis-headless:6379/1"
+  OPENPROJECT_EMAIL__DELIVERY__METHOD: "smtp"
+  OPENPROJECT_OMNIAUTH__DIRECT__LOGIN__PROVIDER: "Keycloak"
+  OPENPROJECT_SMTP__AUTHENTICATION: "login"
+  OPENPROJECT_SMTP__DOMAIN: "openproject.kubernetes.local"
+  OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO: "true"
+  OPENPROJECT_SMTP__PORT: "587"
+  OPENPROJECT_SMTP__SSL: "true"
+...
+---
+# Source: openproject/templates/secret_oidc.yaml
+apiVersion: "v1"
+kind: "Secret"
+metadata:
+  name: "openproject-oidc"
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: oidc
+data: # reset data to make sure only keys defined below remain
+stringData:
+  # OpenID Connect settings
+  
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_DISPLAY__NAME: "Keycloak"
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_HOST: ""
+  
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_IDENTIFIER: "openproject"
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_SECRET: "38adb1a1b8ae0c1f048bfe05cf430c12d3f1cd26"
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_AUTHORIZATION__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_TOKEN__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_USERINFO__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_END__SESSION__ENDPOINT: 
+  OPENPROJECT_OPENID__CONNECT_KEYCLOAK_SCOPE: "[openid]"
+...
+---
+# Source: openproject/templates/secret_s3.yaml
+apiVersion: "v1"
+kind: "Secret"
+metadata:
+  name: "openproject-s3"
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: s3
+data: # reset data to make sure only keys defined below remain
+stringData:
+  OPENPROJECT_ATTACHMENTS__STORAGE: fog
+  OPENPROJECT_FOG_CREDENTIALS_PROVIDER: AWS
+  OPENPROJECT_FOG_CREDENTIALS_AWS__ACCESS__KEY__ID: admin
+  OPENPROJECT_FOG_CREDENTIALS_AWS__SECRET__ACCESS__KEY: e110a7d80fae3e3cdb0c6f6aacebea2f56195bb4
+
+  OPENPROJECT_FOG_CREDENTIALS_ENDPOINT: http://openproject-minio:9000
+  
+  
+  OPENPROJECT_FOG_DIRECTORY: openproject
+  OPENPROJECT_FOG_CREDENTIALS_REGION: 
+  OPENPROJECT_FOG_CREDENTIALS_PATH__STYLE: "true"
+  OPENPROJECT_FOG_CREDENTIALS_AWS__SIGNATURE__VERSION: "4"
+  # remove use_iam_profile fallback after some point
+  OPENPROJECT_FOG_CREDENTIALS_USE__IAM__PROFILE: "false"
+  OPENPROJECT_FOG_CREDENTIALS_ENABLE__SIGNATURE__V4__STREAMING: "true"
+  OPENPROJECT_DIRECT__UPLOADS: "false"
+...
+---
+# Source: openproject/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: openproject
+  namespace: "omara-sep"
+rules:
+  - apiGroups:
+      - security.openshift.io
+    resourceNames:
+      - nonroot-v2
+    resources:
+      - securitycontextconstraints
+    verbs:
+      - use
+---
+# Source: openproject/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: openproject
+  namespace: "omara-sep"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: openproject
+subjects:
+  - kind: ServiceAccount
+    name: openproject
+    namespace: "omara-sep"
+---
+# Source: openproject/templates/service.yaml
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: openproject
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: openproject
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/instance: openproject
+    openproject/process: web
+...
+---
+# Source: openproject/templates/cron-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openproject-cron
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: cron
+    app.kubernetes.io/component: cron
+spec:
+  replicas: 0
+  strategy:
+    type: "Recreate"
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: cron
+      app.kubernetes.io/component: cron
+  template:
+    metadata:
+      annotations:
+        
+        # annotate pods with env value checksums so changes trigger re-deployments
+        
+        checksum/env-core: 2e48fb692639e2fae1d132a29ff84b9e8fc5cd39523c25d5153143d4ec15d3b2
+        checksum/env-memcached: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/env-oidc: 5b2071f853217fe04fd9658973661e8001f4ed170240945212e566d795cfbdc4
+        checksum/env-s3: a728ad422935ea900dfd036910cf33011fa3982464d21d6340e460dc15b239db
+        checksum/env-environment: f8c029004f52ab1f65497e35eed28af463d2f9b72adbfea9fb1b64c16f1d7534
+        checksum/env-cron-environment: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      labels:
+        app.kubernetes.io/instance: openproject
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: openproject
+        app.kubernetes.io/part-of: openproject
+        app.kubernetes.io/version: 16.6.3
+        helm.sh/chart: openproject-11.6.1
+        openproject/process: cron
+        app.kubernetes.io/component: cron
+    spec:      
+      imagePullSecrets:
+        - name: ""      
+      securityContext:
+        fsGroup: 1000
+      serviceAccountName: openproject
+      volumes:        
+        - name: tmp
+          # we can't use emptyDir due to the sticky bit issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi
+        - name: app-tmp
+          # we can't use emptyDir due to the sticky bit / world writable issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi        
+      initContainers:
+        - name: wait-for-db          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          image: ghcr.io/minbzk/mijnbureau-openproject:v16.6.3
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+            - secretRef:
+                name: openproject-cron-environment
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          args:
+            - bash
+            - /app/docker/prod/wait-for-db
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp
+      containers:
+        - name: "cron"          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          image: ghcr.io/minbzk/mijnbureau-openproject:v16.6.3
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+            - secretRef:
+                name: openproject-cron-environment
+          args:
+            - bash
+            - /app/docker/prod/cron
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp            
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+---
+# Source: openproject/templates/web-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openproject-web
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: web
+    app.kubernetes.io/component: web
+spec:
+  strategy:
+    
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: web
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      annotations:
+        
+        # annotate pods with env value checksums so changes trigger re-deployments
+        
+        checksum/env-core: 2e48fb692639e2fae1d132a29ff84b9e8fc5cd39523c25d5153143d4ec15d3b2
+        checksum/env-memcached: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/env-oidc: 5b2071f853217fe04fd9658973661e8001f4ed170240945212e566d795cfbdc4
+        checksum/env-s3: a728ad422935ea900dfd036910cf33011fa3982464d21d6340e460dc15b239db
+        checksum/env-environment: f8c029004f52ab1f65497e35eed28af463d2f9b72adbfea9fb1b64c16f1d7534
+      labels:
+        app.kubernetes.io/instance: openproject
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: openproject
+        app.kubernetes.io/part-of: openproject
+        app.kubernetes.io/version: 16.6.3
+        helm.sh/chart: openproject-11.6.1
+        openproject/process: web
+        app.kubernetes.io/component: web
+    spec:      
+      imagePullSecrets:
+        - name: ""      
+      securityContext:
+        fsGroup: 1000
+      serviceAccountName: openproject
+      volumes:        
+        - name: tmp
+          # we can't use emptyDir due to the sticky bit issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi
+        - name: app-tmp
+          # we can't use emptyDir due to the sticky bit / world writable issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi        
+      initContainers:
+        - name: wait-for-db          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          image: ghcr.io/minbzk/mijnbureau-openproject:v16.6.3
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          args:
+            - /app/docker/prod/wait-for-db
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp
+      containers:
+        - name: "openproject"          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          image: ghcr.io/minbzk/mijnbureau-openproject:v16.6.3
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          args:
+            - /app/docker/prod/web
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp            
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: "/health_checks/default"
+              port: 8080
+              httpHeaders:
+                # required otherwise health check will return 404 because health check is done using the Pod IP, which may cause issues with downstream variants
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 0
+            timeoutSeconds: 5
+            periodSeconds: 15
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: "/health_checks/default"
+              port: 8080
+              httpHeaders:
+                # required otherwise health check will return 404 because health check is done using the Pod IP, which may cause issues with downstream variants
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 0
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: "/health_checks/default"
+              port: 8080
+              httpHeaders:
+                # required otherwise health check will return 404 because health check is done using the Pod IP, which may cause issues with downstream variants
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            periodSeconds: 15
+            failureThreshold: 10
+            successThreshold: 1
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+---
+# Source: openproject/templates/worker-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openproject-worker-default
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    openproject/process: worker-default
+    app.kubernetes.io/component: worker-default
+spec:
+  replicas: 1
+  strategy:
+    
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openproject
+      app.kubernetes.io/name: openproject
+      openproject/process: worker-default
+      app.kubernetes.io/component: worker-default
+  template:
+    metadata:
+      annotations:
+        
+        # annotate pods with env value checksums so changes trigger re-deployments
+        
+        checksum/env-core: 2e48fb692639e2fae1d132a29ff84b9e8fc5cd39523c25d5153143d4ec15d3b2
+        checksum/env-memcached: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/env-oidc: 5b2071f853217fe04fd9658973661e8001f4ed170240945212e566d795cfbdc4
+        checksum/env-s3: a728ad422935ea900dfd036910cf33011fa3982464d21d6340e460dc15b239db
+        checksum/env-environment: f8c029004f52ab1f65497e35eed28af463d2f9b72adbfea9fb1b64c16f1d7534
+      labels:
+        app.kubernetes.io/instance: openproject
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: openproject
+        app.kubernetes.io/part-of: openproject
+        app.kubernetes.io/version: 16.6.3
+        helm.sh/chart: openproject-11.6.1
+        openproject/process: worker-default
+        app.kubernetes.io/component: worker-default
+    spec:      
+      imagePullSecrets:
+        - name: ""      
+      securityContext:
+        fsGroup: 1000
+      serviceAccountName: openproject
+      volumes:        
+        - name: tmp
+          # we can't use emptyDir due to the sticky bit issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi
+        - name: app-tmp
+          # we can't use emptyDir due to the sticky bit / world writable issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi        
+      initContainers:
+        - name: wait-for-db          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          image: ghcr.io/minbzk/mijnbureau-openproject:v16.6.3
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          args:
+            - bash
+            - /app/docker/prod/wait-for-db
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp
+      containers:
+        - name: "openproject"          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          image: ghcr.io/minbzk/mijnbureau-openproject:v16.6.3
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+          args:
+            - bash
+            - /app/docker/prod/worker
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+            - name: "OPENPROJECT_GOOD_JOB_QUEUES"
+              value: ""
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp            
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+---
+# Source: openproject/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: openproject-web-hpa
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/name: openproject
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "16.6.3"
+    openproject/process: web
+    app.kubernetes.io/component: web
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: openproject-web
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  behavior:
+    scaleDown:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      - periodSeconds: 60
+        type: Percent
+        value: 10
+      selectPolicy: Min
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 2
+      - periodSeconds: 60
+        type: Percent
+        value: 50
+      selectPolicy: Max
+      stabilizationWindowSeconds: 60
+---
+# Source: openproject/templates/seeder-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openproject-seeder-1
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: seeder
+spec:
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openproject
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: openproject
+        app.kubernetes.io/part-of: openproject
+        app.kubernetes.io/version: 16.6.3
+        helm.sh/chart: openproject-11.6.1
+        openproject/process: seeder
+        app.kubernetes.io/component: seeder
+    spec:
+      serviceAccountName: openproject      
+      imagePullSecrets:
+        - name: ""      
+      securityContext:
+        fsGroup: 1000
+      volumes:        
+        - name: tmp
+          # we can't use emptyDir due to the sticky bit issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi
+        - name: app-tmp
+          # we can't use emptyDir due to the sticky bit / world writable issue
+          # see: https://github.com/kubernetes/kubernetes/issues/110835
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                creationTimestamp: null
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 5Gi        
+      initContainers:
+        - name: check-db-ready
+          image: "docker.io/postgres:16"
+          imagePullPolicy: Always
+          command: [
+            'sh',
+            '-c',
+            'until pg_isready -h $DATABASE_HOST -p $DATABASE_PORT -U openproject; do echo "waiting for database $DATABASE_HOST:$DATABASE_PORT"; sleep 2; done;'
+          ]
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp          
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+      containers:
+        - name: seeder
+          image: "ghcr.io/minbzk/mijnbureau-openproject:v16.6.3"
+          imagePullPolicy: Always
+          args:
+            - bash
+            - /app/docker/prod/seeder
+          envFrom:
+            - secretRef:
+                name: openproject-core
+            - secretRef:
+                name: openproject-oidc
+            - secretRef:
+                name: openproject-s3
+            - secretRef:
+                name: openproject-environment
+          env:
+            
+            - name: OPENPROJECT_DB_PASSWORD
+              value: 2d818d488752f4ba04f473e4cec6aa74d3429251
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:            
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/tmp
+              name: app-tmp                      
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: OnFailure
+---
+# Source: openproject/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openproject
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: openproject
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  tls:
+  rules:
+    - host: "openproject.kubernetes.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openproject
+                port:
+                  name: http
+
+...
+---
+# Source: openproject/templates/tests/test-connection.yaml
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  name: "openproject-test-connection"
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: openproject
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openproject
+    app.kubernetes.io/part-of: openproject
+    app.kubernetes.io/version: 16.6.3
+    helm.sh/chart: openproject-11.6.1
+    app.kubernetes.io/component: test-connection
+  annotations:
+    "helm.sh/hook": test
+spec:
+  serviceAccountName: openproject
+  containers:
+    - name: "wget"
+      image: "busybox"
+      imagePullPolicy: Always
+      command: ['wget']
+      args:
+        - '--no-verbose'
+        - '--tries=1'
+        - '--spider'
+        - 'openproject:8080/health_check'
+  restartPolicy: "Never"
+...
+
+---
+# Source: livekit-server/templates/networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: livekit-server
+      app.kubernetes.io/name: livekit-server
+      app.kubernetes.io/component: livekit-server
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    - ports:
+        - port: 7880
+        - port: 30001
+          protocol: UDP
+        - port: 30002
+          protocol: UDP
+        - port: 30003
+          protocol: UDP
+        - port: 30004
+          protocol: UDP
+        - port: 30005
+          protocol: UDP
+        - port: 30006
+          protocol: UDP
+        - port: 30007
+          protocol: UDP
+        - port: 30008
+          protocol: UDP
+        - port: 30009
+          protocol: UDP
+        - port: 32669
+          protocol: TCP
+---
+# Source: livekit-server/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: livekit-server
+      app.kubernetes.io/name: livekit-server
+      app.kubernetes.io/component: livekit-server
+---
+# Source: livekit-server/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+automountServiceAccountToken: true
+---
+# Source: livekit-server/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+type: Opaque
+stringData:
+  keyfile.txt: |
+    apikey: 9c53c43a4dd96f6abde818ff1f39419e7baa9731
+---
+# Source: livekit-server/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+data:
+  config.yaml: |
+    port: 7880
+    room:
+      departure_timeout: 20
+      empty_timeout: 120
+      max_participants: 100
+    rtc:
+      port_range_end: 30009
+      port_range_start: 30001
+      tcp_port: 32669
+      use_external_ip: false
+    turn:
+      domain: turn-livekit.kubernetes.local
+      enabled: false
+      external_tls: false
+      tls_port: 32222
+---
+# Source: livekit-server/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+rules:
+  - apiGroups:
+    - apps
+    resources:
+    - deployments
+    verbs:
+    - get
+    - update
+    - patch
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    verbs:
+    - get
+---
+# Source: livekit-server/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: livekit-server
+  namespace: omara-sep
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+subjects:
+- kind: ServiceAccount
+  name: livekit-server
+roleRef:
+  kind: Role
+  name: livekit-server
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: livekit-server/templates/service-api.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 80
+      targetPort: 7880
+      protocol: TCP
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/component: livekit-server
+---
+# Source: livekit-server/templates/service-livekit.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: livekit-livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  type: LoadBalancer
+  sessionAffinity: None
+  externalTrafficPolicy: "Local"
+  ports:
+    - name: port-30001
+      port: 30001
+      nodePort: 30001
+      targetPort: port-30001
+      protocol: UDP
+    - name: port-30002
+      port: 30002
+      nodePort: 30002
+      targetPort: port-30002
+      protocol: UDP
+    - name: port-30003
+      port: 30003
+      nodePort: 30003
+      targetPort: port-30003
+      protocol: UDP
+    - name: port-30004
+      port: 30004
+      nodePort: 30004
+      targetPort: port-30004
+      protocol: UDP
+    - name: port-30005
+      port: 30005
+      nodePort: 30005
+      targetPort: port-30005
+      protocol: UDP
+    - name: port-30006
+      port: 30006
+      nodePort: 30006
+      targetPort: port-30006
+      protocol: UDP
+    - name: port-30007
+      port: 30007
+      nodePort: 30007
+      targetPort: port-30007
+      protocol: UDP
+    - name: port-30008
+      port: 30008
+      nodePort: 30008
+      targetPort: port-30008
+      protocol: UDP
+    - name: port-30009
+      port: 30009
+      nodePort: 30009
+      targetPort: port-30009
+      protocol: UDP
+    - name: rtc-tcp
+      port: 32669
+      protocol: TCP
+      nodePort: 32669
+      targetPort: rtc-tcp
+  selector:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/component: livekit-server
+---
+# Source: livekit-server/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: livekit-server
+      app.kubernetes.io/name: livekit-server
+      app.kubernetes.io/component: livekit-server
+  template:
+    metadata:
+      annotations:
+        checksum/config: 1e0119ee1bb942e5796a53366984e343e41504e98cd4fd02f8be112081c28b17
+      labels:
+        app.kubernetes.io/instance: livekit-server
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: livekit-server
+        app.kubernetes.io/part-of: livekit
+        app.kubernetes.io/version: 1.9.10
+        helm.sh/chart: livekit-server-0.1.0
+        app.kubernetes.io/component: livekit-server
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: livekit-server
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: livekit-server
+                    app.kubernetes.io/name: livekit-server
+                    app.kubernetes.io/component: livekit_server
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      containers:
+        - name: livekit-server
+          image: registry-1.docker.io/livekit/livekit-server:v1.9.11
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          args:
+            - --key-file=/etc/livekit/keyfile.txt
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: NODE_IP
+              value: "1.3.5.7"
+            - name: REDIS_HOST
+              value: "livekit-redis-master:6379"
+            - name: REDIS_PASSWORD
+              value: "ce3282991c79d4b8ae609b84ea4f9708d5e76cf7"
+            - name: LIVEKIT_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: livekit-server
+                  key: config.yaml
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 7880
+            - name: port-30001
+              containerPort: 30001
+              protocol: UDP
+            - name: port-30002
+              containerPort: 30002
+              protocol: UDP
+            - name: port-30003
+              containerPort: 30003
+              protocol: UDP
+            - name: port-30004
+              containerPort: 30004
+              protocol: UDP
+            - name: port-30005
+              containerPort: 30005
+              protocol: UDP
+            - name: port-30006
+              containerPort: 30006
+              protocol: UDP
+            - name: port-30007
+              containerPort: 30007
+              protocol: UDP
+            - name: port-30008
+              containerPort: 30008
+              protocol: UDP
+            - name: port-30009
+              containerPort: 30009
+              protocol: UDP
+            - name: rtc-tcp
+              containerPort: 32669
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/livekit/data
+            - name: keys
+              mountPath: /etc/livekit
+              readOnly: true
+      volumes:
+        - name: keys
+          secret:
+            secretName: livekit-server
+            defaultMode: 0400
+        - name: data
+          emptyDir: {}
+---
+# Source: livekit-server/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: livekit-server
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+# Source: livekit-server/templates/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: livekit-server-job
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit:  20
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: livekit-server
+        app.kubernetes.io/instance: livekit-server
+        app.kubernetes.io/component: livekit-server-job
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation
+    spec:
+      imagePullSecrets:
+        - name: null
+      restartPolicy: OnFailure
+      serviceAccountName: livekit-server
+      containers:
+        - name: livekit-server-cronjob
+          image: registry-1.docker.io/bitnamilegacy/kubectl:1.33.4
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+          - /bin/sh
+          args:
+          - -c
+          - |
+            ip=$(kubectl get service livekit-livekit-server -o yaml -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+            kubectl set env deployment/livekit-server NODE_IP=$ip
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+---
+# Source: livekit-server/templates/cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 600
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: livekit-server
+            app.kubernetes.io/instance: livekit-server
+            app.kubernetes.io/component: livekit-server-cronjob
+        spec:
+          imagePullSecrets:
+            - name: null
+          restartPolicy: OnFailure
+          serviceAccountName: livekit-server
+          containers:
+            - name: livekit-server-cronjob
+              image: registry-1.docker.io/bitnamilegacy/kubectl:1.33.4
+              imagePullPolicy: Always
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                  - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 1001
+                runAsNonRoot: true
+                runAsUser: 1001
+                seLinuxOptions: {}
+                seccompProfile:
+                  type: RuntimeDefault
+              command:
+                - /bin/sh
+              args:
+                - -c
+                - |
+                  ip=$(kubectl get service livekit-livekit-server -o yaml -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+                  kubectl set env deployment/livekit-server NODE_IP=$ip
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 64Mi
+---
+# Source: livekit-server/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: livekit-server
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: livekit-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: livekit-server
+    app.kubernetes.io/part-of: livekit
+    app.kubernetes.io/version: 1.9.10
+    helm.sh/chart: livekit-server-0.1.0
+    app.kubernetes.io/component: livekit-server
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: livekit.kubernetes.local
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: livekit-server
+                port:
+                  name: http
+
+---
+# Source: docs/templates/backend-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: docs-backend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: backend
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+        - port: 8000
+          protocol: TCP
+      to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: celery-worker
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+    - ports:
+      - port: 4444
+  ingress:
+    - ports:
+        - port: 8000
+---
+# Source: docs/templates/celery-worker-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: docs-celery-worker
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: celery-worker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: celery-worker
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+    - ports:
+      - port: 4444
+  ingress:
+    - ports:
+        - port: 8000
+---
+# Source: docs/templates/frontend-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: docs-frontend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: frontend
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: frontend
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+  ingress:
+    - ports:
+        - port: 8080
+---
+# Source: docs/templates/yprovider-networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: docs-y-provider
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: y-provider
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: y-provider
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        # Allow dns resolution
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: primary
+            app.kubernetes.io/name: postgresql
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/component: master
+            app.kubernetes.io/name: redis
+    - ports:
+      - port: 9000
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+    - ports:
+      - port: 443
+  ingress:
+    - ports:
+        - port: 4444
+---
+# Source: docs/templates/backend-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: docs-backend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: backend
+---
+# Source: docs/templates/frontend-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: docs-frontend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: frontend
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: frontend
+---
+# Source: docs/templates/yprovider-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: docs-y-provider
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: y-provider
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: y-provider
+---
+# Source: docs/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: docs
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: docs
+automountServiceAccountToken: true
+---
+# Source: docs/templates/theme-customization-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docs-theme
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+data:
+  default.json: |
+        "{\n  \"translations\": {\n      \"en\": {\n        \"translation\": {\n          \"Docs\": \"Mijn Bureau Docs\",\n          \"New doc\": \"+\"\n        }\n      }\n    },\n  \"footer\": {\n    \"default\": {\n      \"logo\": {\n        \"src\": \"/assets/icon-docs.svg\",\n        \"width\": \"54px\",\n        \"alt\": \"Docs Logo\",\n        \"withTitle\": true\n      },\n      \"externalLinks\": [\n        {\n          \"label\": \"GitHub\",\n          \"href\": \"https://github.com/suitenumerique/docs/\"\n        },\n        {\n          \"label\": \"DINUM\",\n          \"href\": \"https://www.numerique.gouv.fr/dinum/\"\n        },\n        {\n          \"label\": \"ZenDiS\",\n          \"href\": \"https://zendis.de/\"\n        },\n        {\n          \"label\": \"BlockNote.js\",\n          \"href\": \"https://www.blocknotejs.org/\"\n        }\n      ],\n      \"bottomInformation\": {\n        \"label\": \"Unless otherwise stated, all content on this site is under\",\n        \"link\": {\n          \"label\": \"licence etalab-2.0\",\n          \"href\": \"https://github.com/etalab/licence-ouverte/blob/master/LO.md\"\n        }\n      }\n    },\n    \"en\": {\n      \"legalLinks\": [\n        {\n          \"label\": \"Legal Notice\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Personal data and cookies\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Accessibility\",\n          \"href\": \"#\"\n        }\n      ],\n      \"bottomInformation\": {\n        \"label\": \"Unless otherwise stated, all content on this site is under\",\n        \"link\": {\n          \"label\": \"licence MIT\",\n          \"href\": \"https://github.com/suitenumerique/docs/blob/main/LICENSE\"\n        }\n      }\n    },\n    \"fr\": {\n      \"legalLinks\": [\n        {\n          \"label\": \"Mentions légales\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Données personnelles et cookies\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Accessibilité\",\n          \"href\": \"#\"\n        }\n      ],\n      \"bottomInformation\": {\n        \"label\": \"Sauf mention contraire, tout le contenu de ce site est sous\",\n        \"link\": {\n          \"label\": \"licence MIT\",\n          \"href\": \"https://github.com/suitenumerique/docs/blob/main/LICENSE\"\n        }\n      }\n    },\n    \"de\": {\n      \"legalLinks\": [\n        {\n          \"label\": \"Impressum\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Personenbezogene Daten und Cookies\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Barrierefreiheit\",\n          \"href\": \"#\"\n        }\n      ],\n      \"bottomInformation\": {\n        \"label\": \"Sofern nicht anders angegeben, steht der gesamte Inhalt dieser Website unter\",\n        \"link\": {\n          \"label\": \"licence MIT\",\n          \"href\": \"https://github.com/suitenumerique/docs/blob/main/LICENSE\"\n        }\n      }\n    },\n    \"nl\": {\n      \"legalLinks\": [\n        {\n          \"label\": \"Wettelijke bepalingen\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Persoonlijke gegevens en cookies\",\n          \"href\": \"#\"\n        },\n        {\n          \"label\": \"Toegankelijkheid\",\n          \"href\": \"#\"\n        }\n      ],\n      \"bottomInformation\": {\n        \"label\": \"Tenzij anders vermeld, is alle inhoud van deze site ondergebracht onder\",\n        \"link\": {\n          \"label\": \"licence MIT\",\n          \"href\": \"https://github.com/suitenumerique/docs/blob/main/LICENSE\"\n        }\n      }\n    }\n  }\n}\"\n"
+---
+# Source: docs/templates/backend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-backend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/component: backend
+---
+# Source: docs/templates/frontend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-frontend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: frontend
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/component: frontend
+---
+# Source: docs/templates/yprovider-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-y-provider
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: y-provider
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: http
+      port: 443
+      targetPort: 4444
+      protocol: TCP
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/component: y-provider
+---
+# Source: docs/templates/backend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-backend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/instance: docs
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: docs
+        app.kubernetes.io/part-of: docs
+        app.kubernetes.io/version: 4.4.0
+        helm.sh/chart: docs-0.1.0
+        app.kubernetes.io/component: backend
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: docs
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: docs
+                    app.kubernetes.io/name: docs
+                    app.kubernetes.io/component: docs
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+      containers:
+        - name: docs-backend
+          image: registry-1.docker.io/lasuite/impress-backend:v4.4.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"            
+            - name: "AI_FEATURE_ENABLED"
+              value: "false"
+            - name: "API_USERS_LIST_LIMIT"
+              value: "5"
+            - name: "API_USERS_LIST_THROTTLE_RATE_BURST"
+              value: "30/minute"
+            - name: "API_USERS_LIST_THROTTLE_RATE_SUSTAINED"
+              value: "180/hour"
+            - name: "AWS_S3_ACCESS_KEY_ID"
+              value: "admin"
+            - name: "AWS_S3_ENDPOINT_URL"
+              value: "http://docs-minio:9000"
+            - name: "AWS_S3_SECRET_ACCESS_KEY"
+              value: "eaec399fb5e8c9d60874213f1a11deda3a7d5626"
+            - name: "AWS_STORAGE_BUCKET_NAME"
+              value: "docs"
+            - name: "CACHES_DEFAULT_TIMEOUT"
+              value: "30"
+            - name: "COLLABORATION_API_URL"
+              value: "https://docs.kubernetes.local/collaboration/api/"
+            - name: "COLLABORATION_SERVER_SECRET"
+              value: "80581bb5421f6905551f6dc6c438978950e4de18"
+            - name: "COLLABORATION_WS_NOT_CONNECTED_READY_ONLY"
+              value: "true"
+            - name: "COLLABORATION_WS_URL"
+              value: "wss://docs.kubernetes.local/collaboration/ws/"
+            - name: "CONVERSION_API_CONTENT_FIELD"
+              value: "content"
+            - name: "CONVERSION_API_ENDPOINT"
+              value: "convert"
+            - name: "CONVERSION_API_SECURE"
+              value: "false"
+            - name: "CONVERSION_API_TIMEOUT"
+              value: "30"
+            - name: "CRISP_WEBSITE_ID"
+              value: ""
+            - name: "DB_ENGINE"
+              value: "django.db.backends.postgresql_psycopg2"
+            - name: "DB_HOST"
+              value: "docs-postgresql"
+            - name: "DB_NAME"
+              value: "docs"
+            - name: "DB_PASSWORD"
+              value: "75dc629878d408fac2a666397eced361e8bb9a7f"
+            - name: "DB_PORT"
+              value: "5432"
+            - name: "DB_USER"
+              value: "docs"
+            - name: "DJANGO_ALLOWED_HOSTS"
+              value: "docs.kubernetes.local"
+            - name: "DJANGO_CELERY_BROKER_TRANSPORT_OPTIONS"
+              value: ""
+            - name: "DJANGO_CELERY_BROKER_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "DJANGO_CONFIGURATION"
+              value: "Production"
+            - name: "DJANGO_CORS_ALLOWED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_CORS_ALLOWED_ORIGIN_REGEXES"
+              value: ""
+            - name: "DJANGO_CORS_ALLOW_ALL_ORIGINS"
+              value: "false"
+            - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_EMAIL_BACKEND"
+              value: "django.core.mail.backends.smtp.EmailBackend"
+            - name: "DJANGO_EMAIL_BRAND_NAME"
+              value: "Mijn Bureau"
+            - name: "DJANGO_EMAIL_FROM"
+              value: "you@example.com"
+            - name: "DJANGO_EMAIL_HOST"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_PASSWORD"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_USER"
+              value: ""
+            - name: "DJANGO_EMAIL_LOGO_IMG"
+              value: "https://minbzk.github.io/mijn-bureau/assets/logo-kleur.png"
+            - name: "DJANGO_EMAIL_PORT"
+              value: "587"
+            - name: "DJANGO_EMAIL_USE_SSL"
+              value: "false"
+            - name: "DJANGO_EMAIL_USE_TLS"
+              value: "true"
+            - name: "DJANGO_SECRET_KEY"
+              value: "628c890853f7b87624b710152e5b68e2dc53cc9f180e98f7eda61287612516a"
+            - name: "DJANGO_SERVER_TO_SERVER_API_TOKENS"
+              value: "secret-api-key"
+            - name: "DJANGO_SETTINGS_MODULE"
+              value: "impress.settings"
+            - name: "DJANGO_SUPERUSER_EMAIL"
+              value: "admin@example.com"
+            - name: "DJANGO_SUPERUSER_PASSWORD"
+              value: "fcf35ca5fbe14f99471807fd332cacce92c47cbe"
+            - name: "DOCUMENT_IMAGE_MAX_SIZE"
+              value: "10485760"
+            - name: "FRONTEND_CSS_URL"
+              value: ""
+            - name: "FRONTEND_HOMEPAGE_FEATURE_ENABLED"
+              value: "false"
+            - name: "FRONTEND_THEME"
+              value: ""
+            - name: "LANGUAGE_CODE"
+              value: "nl"
+            - name: "LOGGING_LEVEL_HANDLERS_CONSOLE"
+              value: "ERROR"
+            - name: "LOGGING_LEVEL_LOGGERS_APP"
+              value: "INFO"
+            - name: "LOGGING_LEVEL_LOGGERS_ROOT"
+              value: "INFO"
+            - name: "LOGIN_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGIN_REDIRECT_URL_FAILURE"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGOUT_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "MALWARE_DETECTION_BACKEND"
+              value: "lasuite.malware_detection.backends.dummy.DummyBackend"
+            - name: "MALWARE_DETECTION_PARAMETERS"
+              value: "{\"callback_path\": \"core.malware_detection.malware_detection_callback\",}"
+            - name: "MEDIA_BASE_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "NO_WEBSOCKET_CACHE_TIMEOUT"
+              value: "120"
+            - name: "OIDC_ALLOW_DUPLICATE_EMAILS"
+              value: "false"
+            - name: "OIDC_AUTH_REQUEST_EXTRA_PARAMS"
+              value: "{}"
+            - name: "OIDC_CREATE_USER"
+              value: "false"
+            - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
+              value: "true"
+            - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_JWKS_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_LOGOUT_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_TOKEN_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_USER_ENDPOINT"
+              value: 
+            - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
+              value: "[https://docs.kubernetes.local]"
+            - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
+              value: "true"
+            - name: "OIDC_RP_CLIENT_ID"
+              value: "docs"
+            - name: "OIDC_RP_CLIENT_SECRET"
+              value: "0c74f7bb06868201c91a14fba0844f33a5f25738"
+            - name: "OIDC_RP_SCOPES"
+              value: "openid email"
+            - name: "OIDC_RP_SIGN_ALGO"
+              value: "RS256"
+            - name: "OIDC_STORE_ID_TOKEN"
+              value: "true"
+            - name: "OIDC_USERINFO_FULLNAME_FIELDS"
+              value: "given_name"
+            - name: "OIDC_USERINFO_SHORTNAME_FIELD"
+              value: "name"
+            - name: "OIDC_USE_NONCE"
+              value: "true"
+            - name: "PYTHONPATH"
+              value: "/app"
+            - name: "REDIS_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "SENTRY_DSN"
+              value: ""
+            - name: "SESSION_COOKIE_AGE"
+              value: "43200"
+            - name: "SPECTACULAR_SETTINGS_ENABLE_DJANGO_DEPLOY_CHECK"
+              value: "false"
+            - name: "STORAGES_STATICFILES_BACKEND"
+              value: "django.contrib.staticfiles.storage.StaticFilesStorage"
+            - name: "THEME_CUSTOMIZATION_CACHE_TIMEOUT"
+              value: "86400"
+            - name: "THEME_CUSTOMIZATION_FILE_PATH"
+              value: ""
+            - name: "USER_OIDC_ESSENTIAL_CLAIMS"
+              value: ""
+            - name: "Y_PROVIDER_API_BASE_URL"
+              value: "http://docs-y-provider:443/api/"
+            - name: "Y_PROVIDER_API_KEY"
+              value: "efe21c659a53c8e457fe4c27f8288fe52b90bde0"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 8000
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /__heartbeat__
+              port: 8000
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /__lbheartbeat__
+              port: 8000
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: theme-customization
+              mountPath: /app/impress/configuration/theme
+              readOnly: true
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: theme-customization
+          configMap:
+            name: docs-theme
+---
+# Source: docs/templates/celery-worker-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-celery-worker
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: celery-worker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: celery-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: docs
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: docs
+        app.kubernetes.io/part-of: docs
+        app.kubernetes.io/version: 4.4.0
+        helm.sh/chart: docs-0.1.0
+        app.kubernetes.io/component: celery-worker
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: docs
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: docs
+                    app.kubernetes.io/name: docs
+                    app.kubernetes.io/component: docs
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+      containers:
+        - name: docs-celery-worker
+          image: registry-1.docker.io/lasuite/impress-backend:v4.4.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          args:
+            - celery
+            - -A
+            - impress.celery_app
+            - worker
+            - -l
+            - INFO
+            - -n
+            - impress@%h
+            - --autoscale=9,3
+          env:            
+            - name: "AI_FEATURE_ENABLED"
+              value: "false"
+            - name: "API_USERS_LIST_LIMIT"
+              value: "5"
+            - name: "API_USERS_LIST_THROTTLE_RATE_BURST"
+              value: "30/minute"
+            - name: "API_USERS_LIST_THROTTLE_RATE_SUSTAINED"
+              value: "180/hour"
+            - name: "AWS_S3_ACCESS_KEY_ID"
+              value: "admin"
+            - name: "AWS_S3_ENDPOINT_URL"
+              value: "http://docs-minio:9000"
+            - name: "AWS_S3_SECRET_ACCESS_KEY"
+              value: "eaec399fb5e8c9d60874213f1a11deda3a7d5626"
+            - name: "AWS_STORAGE_BUCKET_NAME"
+              value: "docs"
+            - name: "CACHES_DEFAULT_TIMEOUT"
+              value: "30"
+            - name: "COLLABORATION_API_URL"
+              value: "https://docs.kubernetes.local/collaboration/api/"
+            - name: "COLLABORATION_SERVER_SECRET"
+              value: "80581bb5421f6905551f6dc6c438978950e4de18"
+            - name: "COLLABORATION_WS_NOT_CONNECTED_READY_ONLY"
+              value: "true"
+            - name: "COLLABORATION_WS_URL"
+              value: "wss://docs.kubernetes.local/collaboration/ws/"
+            - name: "CONVERSION_API_CONTENT_FIELD"
+              value: "content"
+            - name: "CONVERSION_API_ENDPOINT"
+              value: "convert"
+            - name: "CONVERSION_API_SECURE"
+              value: "false"
+            - name: "CONVERSION_API_TIMEOUT"
+              value: "30"
+            - name: "CRISP_WEBSITE_ID"
+              value: ""
+            - name: "DB_ENGINE"
+              value: "django.db.backends.postgresql_psycopg2"
+            - name: "DB_HOST"
+              value: "docs-postgresql"
+            - name: "DB_NAME"
+              value: "docs"
+            - name: "DB_PASSWORD"
+              value: "75dc629878d408fac2a666397eced361e8bb9a7f"
+            - name: "DB_PORT"
+              value: "5432"
+            - name: "DB_USER"
+              value: "docs"
+            - name: "DJANGO_ALLOWED_HOSTS"
+              value: "docs.kubernetes.local"
+            - name: "DJANGO_CELERY_BROKER_TRANSPORT_OPTIONS"
+              value: ""
+            - name: "DJANGO_CELERY_BROKER_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "DJANGO_CONFIGURATION"
+              value: "Production"
+            - name: "DJANGO_CORS_ALLOWED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_CORS_ALLOWED_ORIGIN_REGEXES"
+              value: ""
+            - name: "DJANGO_CORS_ALLOW_ALL_ORIGINS"
+              value: "false"
+            - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_EMAIL_BACKEND"
+              value: "django.core.mail.backends.smtp.EmailBackend"
+            - name: "DJANGO_EMAIL_BRAND_NAME"
+              value: "Mijn Bureau"
+            - name: "DJANGO_EMAIL_FROM"
+              value: "you@example.com"
+            - name: "DJANGO_EMAIL_HOST"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_PASSWORD"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_USER"
+              value: ""
+            - name: "DJANGO_EMAIL_LOGO_IMG"
+              value: "https://minbzk.github.io/mijn-bureau/assets/logo-kleur.png"
+            - name: "DJANGO_EMAIL_PORT"
+              value: "587"
+            - name: "DJANGO_EMAIL_USE_SSL"
+              value: "false"
+            - name: "DJANGO_EMAIL_USE_TLS"
+              value: "true"
+            - name: "DJANGO_SECRET_KEY"
+              value: "628c890853f7b87624b710152e5b68e2dc53cc9f180e98f7eda61287612516a"
+            - name: "DJANGO_SERVER_TO_SERVER_API_TOKENS"
+              value: "secret-api-key"
+            - name: "DJANGO_SETTINGS_MODULE"
+              value: "impress.settings"
+            - name: "DJANGO_SUPERUSER_EMAIL"
+              value: "admin@example.com"
+            - name: "DJANGO_SUPERUSER_PASSWORD"
+              value: "fcf35ca5fbe14f99471807fd332cacce92c47cbe"
+            - name: "DOCUMENT_IMAGE_MAX_SIZE"
+              value: "10485760"
+            - name: "FRONTEND_CSS_URL"
+              value: ""
+            - name: "FRONTEND_HOMEPAGE_FEATURE_ENABLED"
+              value: "false"
+            - name: "FRONTEND_THEME"
+              value: ""
+            - name: "LANGUAGE_CODE"
+              value: "nl"
+            - name: "LOGGING_LEVEL_HANDLERS_CONSOLE"
+              value: "ERROR"
+            - name: "LOGGING_LEVEL_LOGGERS_APP"
+              value: "INFO"
+            - name: "LOGGING_LEVEL_LOGGERS_ROOT"
+              value: "INFO"
+            - name: "LOGIN_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGIN_REDIRECT_URL_FAILURE"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGOUT_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "MALWARE_DETECTION_BACKEND"
+              value: "lasuite.malware_detection.backends.dummy.DummyBackend"
+            - name: "MALWARE_DETECTION_PARAMETERS"
+              value: "{\"callback_path\": \"core.malware_detection.malware_detection_callback\",}"
+            - name: "MEDIA_BASE_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "NO_WEBSOCKET_CACHE_TIMEOUT"
+              value: "120"
+            - name: "OIDC_ALLOW_DUPLICATE_EMAILS"
+              value: "false"
+            - name: "OIDC_AUTH_REQUEST_EXTRA_PARAMS"
+              value: "{}"
+            - name: "OIDC_CREATE_USER"
+              value: "false"
+            - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
+              value: "true"
+            - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_JWKS_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_LOGOUT_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_TOKEN_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_USER_ENDPOINT"
+              value: 
+            - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
+              value: "[https://docs.kubernetes.local]"
+            - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
+              value: "true"
+            - name: "OIDC_RP_CLIENT_ID"
+              value: "docs"
+            - name: "OIDC_RP_CLIENT_SECRET"
+              value: "0c74f7bb06868201c91a14fba0844f33a5f25738"
+            - name: "OIDC_RP_SCOPES"
+              value: "openid email"
+            - name: "OIDC_RP_SIGN_ALGO"
+              value: "RS256"
+            - name: "OIDC_STORE_ID_TOKEN"
+              value: "true"
+            - name: "OIDC_USERINFO_FULLNAME_FIELDS"
+              value: "given_name"
+            - name: "OIDC_USERINFO_SHORTNAME_FIELD"
+              value: "name"
+            - name: "OIDC_USE_NONCE"
+              value: "true"
+            - name: "PYTHONPATH"
+              value: "/app"
+            - name: "REDIS_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "SENTRY_DSN"
+              value: ""
+            - name: "SESSION_COOKIE_AGE"
+              value: "43200"
+            - name: "SPECTACULAR_SETTINGS_ENABLE_DJANGO_DEPLOY_CHECK"
+              value: "false"
+            - name: "STORAGES_STATICFILES_BACKEND"
+              value: "django.contrib.staticfiles.storage.StaticFilesStorage"
+            - name: "THEME_CUSTOMIZATION_CACHE_TIMEOUT"
+              value: "86400"
+            - name: "THEME_CUSTOMIZATION_FILE_PATH"
+              value: ""
+            - name: "USER_OIDC_ESSENTIAL_CLAIMS"
+              value: ""
+            - name: "Y_PROVIDER_API_BASE_URL"
+              value: "http://docs-y-provider:443/api/"
+            - name: "Y_PROVIDER_API_KEY"
+              value: "efe21c659a53c8e457fe4c27f8288fe52b90bde0"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 8000
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: theme-customization
+              mountPath: /app/impress/configuration/theme
+              readOnly: true
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: theme-customization
+          configMap:
+            name: docs-theme
+---
+# Source: docs/templates/frontend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-frontend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: docs
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: docs
+        app.kubernetes.io/part-of: docs
+        app.kubernetes.io/version: 4.4.0
+        helm.sh/chart: docs-0.1.0
+        app.kubernetes.io/component: frontend
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: docs
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: docs
+                    app.kubernetes.io/name: docs
+                    app.kubernetes.io/component: docs
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+      containers:
+        - name: docs-frontend
+          image: registry-1.docker.io/lasuite/impress-frontend:v4.4.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: PORT
+              value: "8080"
+            - name: NEXT_PUBLIC_API_ORIGIN
+              value: "https://docs.kubernetes.local"
+            - name: API_ORIGIN
+              value: ""
+            - name: SW_DEACTIVATED
+              value: "false"
+            - name: PUBLISH_AS_MIT
+              value: "false"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /
+              port: 8080
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /
+              port: 8080
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+---
+# Source: docs/templates/yprovider-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-y-provider
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: y-provider
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: docs
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/component: y-provider
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: docs
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: docs
+        app.kubernetes.io/part-of: docs
+        app.kubernetes.io/version: 4.4.0
+        helm.sh/chart: docs-0.1.0
+        app.kubernetes.io/component: y-provider
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: docs
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: docs
+                    app.kubernetes.io/name: docs
+                    app.kubernetes.io/component: docs
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+      containers:
+        - name: docs-y-provider
+          image: registry-1.docker.io/lasuite/impress-y-provider:v4.4.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: COLLABORATION_BACKEND_BASE_URL
+              value: "https://docs.kubernetes.local"
+            - name: COLLABORATION_LOGGING
+              value: "true"
+            - name: COLLABORATION_SERVER_ORIGIN
+              value: "https://docs.kubernetes.local"
+            - name: COLLABORATION_SERVER_SECRET
+              value: "80581bb5421f6905551f6dc6c438978950e4de18"
+            - name: Y_PROVIDER_API_KEY
+              value: "efe21c659a53c8e457fe4c27f8288fe52b90bde0"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: https
+              containerPort: 4444
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /ping
+              port: 4444
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /ping
+              port: 4444
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+---
+# Source: docs/templates/backend-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: docs-backend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: docs-backend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: docs/templates/celery-worker-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: docs-celery-worker
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: celery-worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: docs-celery-worker
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: docs/templates/frontend-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: docs-frontend
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: docs-frontend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: docs/templates/backend-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: docs-backend-migrate-1769585379
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend-migrate
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 20
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: docs
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: docs
+        app.kubernetes.io/part-of: docs
+        app.kubernetes.io/version: 4.4.0
+        helm.sh/chart: docs-0.1.0
+        app.kubernetes.io/component: backend
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: docs
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: docs
+                    app.kubernetes.io/name: docs
+                    app.kubernetes.io/component: docs
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      restartPolicy: OnFailure
+      containers:
+        - name: docs-backend
+          image: registry-1.docker.io/lasuite/impress-backend:v4.4.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while ! python manage.py check --database default > /dev/null 2>&1
+              do
+                echo "Database not ready"
+                sleep 2
+              done
+            
+              echo "Database is ready"
+            
+              python manage.py migrate --no-input
+          env:            
+            - name: "AI_FEATURE_ENABLED"
+              value: "false"
+            - name: "API_USERS_LIST_LIMIT"
+              value: "5"
+            - name: "API_USERS_LIST_THROTTLE_RATE_BURST"
+              value: "30/minute"
+            - name: "API_USERS_LIST_THROTTLE_RATE_SUSTAINED"
+              value: "180/hour"
+            - name: "AWS_S3_ACCESS_KEY_ID"
+              value: "admin"
+            - name: "AWS_S3_ENDPOINT_URL"
+              value: "http://docs-minio:9000"
+            - name: "AWS_S3_SECRET_ACCESS_KEY"
+              value: "eaec399fb5e8c9d60874213f1a11deda3a7d5626"
+            - name: "AWS_STORAGE_BUCKET_NAME"
+              value: "docs"
+            - name: "CACHES_DEFAULT_TIMEOUT"
+              value: "30"
+            - name: "COLLABORATION_API_URL"
+              value: "https://docs.kubernetes.local/collaboration/api/"
+            - name: "COLLABORATION_SERVER_SECRET"
+              value: "80581bb5421f6905551f6dc6c438978950e4de18"
+            - name: "COLLABORATION_WS_NOT_CONNECTED_READY_ONLY"
+              value: "true"
+            - name: "COLLABORATION_WS_URL"
+              value: "wss://docs.kubernetes.local/collaboration/ws/"
+            - name: "CONVERSION_API_CONTENT_FIELD"
+              value: "content"
+            - name: "CONVERSION_API_ENDPOINT"
+              value: "convert"
+            - name: "CONVERSION_API_SECURE"
+              value: "false"
+            - name: "CONVERSION_API_TIMEOUT"
+              value: "30"
+            - name: "CRISP_WEBSITE_ID"
+              value: ""
+            - name: "DB_ENGINE"
+              value: "django.db.backends.postgresql_psycopg2"
+            - name: "DB_HOST"
+              value: "docs-postgresql"
+            - name: "DB_NAME"
+              value: "docs"
+            - name: "DB_PASSWORD"
+              value: "75dc629878d408fac2a666397eced361e8bb9a7f"
+            - name: "DB_PORT"
+              value: "5432"
+            - name: "DB_USER"
+              value: "docs"
+            - name: "DJANGO_ALLOWED_HOSTS"
+              value: "docs.kubernetes.local"
+            - name: "DJANGO_CELERY_BROKER_TRANSPORT_OPTIONS"
+              value: ""
+            - name: "DJANGO_CELERY_BROKER_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "DJANGO_CONFIGURATION"
+              value: "Production"
+            - name: "DJANGO_CORS_ALLOWED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_CORS_ALLOWED_ORIGIN_REGEXES"
+              value: ""
+            - name: "DJANGO_CORS_ALLOW_ALL_ORIGINS"
+              value: "false"
+            - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_EMAIL_BACKEND"
+              value: "django.core.mail.backends.smtp.EmailBackend"
+            - name: "DJANGO_EMAIL_BRAND_NAME"
+              value: "Mijn Bureau"
+            - name: "DJANGO_EMAIL_FROM"
+              value: "you@example.com"
+            - name: "DJANGO_EMAIL_HOST"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_PASSWORD"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_USER"
+              value: ""
+            - name: "DJANGO_EMAIL_LOGO_IMG"
+              value: "https://minbzk.github.io/mijn-bureau/assets/logo-kleur.png"
+            - name: "DJANGO_EMAIL_PORT"
+              value: "587"
+            - name: "DJANGO_EMAIL_USE_SSL"
+              value: "false"
+            - name: "DJANGO_EMAIL_USE_TLS"
+              value: "true"
+            - name: "DJANGO_SECRET_KEY"
+              value: "628c890853f7b87624b710152e5b68e2dc53cc9f180e98f7eda61287612516a"
+            - name: "DJANGO_SERVER_TO_SERVER_API_TOKENS"
+              value: "secret-api-key"
+            - name: "DJANGO_SETTINGS_MODULE"
+              value: "impress.settings"
+            - name: "DJANGO_SUPERUSER_EMAIL"
+              value: "admin@example.com"
+            - name: "DJANGO_SUPERUSER_PASSWORD"
+              value: "fcf35ca5fbe14f99471807fd332cacce92c47cbe"
+            - name: "DOCUMENT_IMAGE_MAX_SIZE"
+              value: "10485760"
+            - name: "FRONTEND_CSS_URL"
+              value: ""
+            - name: "FRONTEND_HOMEPAGE_FEATURE_ENABLED"
+              value: "false"
+            - name: "FRONTEND_THEME"
+              value: ""
+            - name: "LANGUAGE_CODE"
+              value: "nl"
+            - name: "LOGGING_LEVEL_HANDLERS_CONSOLE"
+              value: "ERROR"
+            - name: "LOGGING_LEVEL_LOGGERS_APP"
+              value: "INFO"
+            - name: "LOGGING_LEVEL_LOGGERS_ROOT"
+              value: "INFO"
+            - name: "LOGIN_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGIN_REDIRECT_URL_FAILURE"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGOUT_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "MALWARE_DETECTION_BACKEND"
+              value: "lasuite.malware_detection.backends.dummy.DummyBackend"
+            - name: "MALWARE_DETECTION_PARAMETERS"
+              value: "{\"callback_path\": \"core.malware_detection.malware_detection_callback\",}"
+            - name: "MEDIA_BASE_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "NO_WEBSOCKET_CACHE_TIMEOUT"
+              value: "120"
+            - name: "OIDC_ALLOW_DUPLICATE_EMAILS"
+              value: "false"
+            - name: "OIDC_AUTH_REQUEST_EXTRA_PARAMS"
+              value: "{}"
+            - name: "OIDC_CREATE_USER"
+              value: "false"
+            - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
+              value: "true"
+            - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_JWKS_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_LOGOUT_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_TOKEN_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_USER_ENDPOINT"
+              value: 
+            - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
+              value: "[https://docs.kubernetes.local]"
+            - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
+              value: "true"
+            - name: "OIDC_RP_CLIENT_ID"
+              value: "docs"
+            - name: "OIDC_RP_CLIENT_SECRET"
+              value: "0c74f7bb06868201c91a14fba0844f33a5f25738"
+            - name: "OIDC_RP_SCOPES"
+              value: "openid email"
+            - name: "OIDC_RP_SIGN_ALGO"
+              value: "RS256"
+            - name: "OIDC_STORE_ID_TOKEN"
+              value: "true"
+            - name: "OIDC_USERINFO_FULLNAME_FIELDS"
+              value: "given_name"
+            - name: "OIDC_USERINFO_SHORTNAME_FIELD"
+              value: "name"
+            - name: "OIDC_USE_NONCE"
+              value: "true"
+            - name: "PYTHONPATH"
+              value: "/app"
+            - name: "REDIS_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "SENTRY_DSN"
+              value: ""
+            - name: "SESSION_COOKIE_AGE"
+              value: "43200"
+            - name: "SPECTACULAR_SETTINGS_ENABLE_DJANGO_DEPLOY_CHECK"
+              value: "false"
+            - name: "STORAGES_STATICFILES_BACKEND"
+              value: "django.contrib.staticfiles.storage.StaticFilesStorage"
+            - name: "THEME_CUSTOMIZATION_CACHE_TIMEOUT"
+              value: "86400"
+            - name: "THEME_CUSTOMIZATION_FILE_PATH"
+              value: ""
+            - name: "USER_OIDC_ESSENTIAL_CLAIMS"
+              value: ""
+            - name: "Y_PROVIDER_API_BASE_URL"
+              value: "http://docs-y-provider:443/api/"
+            - name: "Y_PROVIDER_API_KEY"
+              value: "efe21c659a53c8e457fe4c27f8288fe52b90bde0"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: theme-customization
+              mountPath: /app/impress/configuration/theme
+              readOnly: true
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: theme-customization
+          configMap:
+            name: docs-theme
+---
+# Source: docs/templates/backend-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: docs-backend-createsuperuser-1769585379
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend-createsuperuser
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 20
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: docs
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: docs
+        app.kubernetes.io/part-of: docs
+        app.kubernetes.io/version: 4.4.0
+        helm.sh/chart: docs-0.1.0
+        app.kubernetes.io/component: backend
+    spec:
+      imagePullSecrets:
+        - name: null
+      serviceAccountName: docs
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: docs
+                    app.kubernetes.io/name: docs
+                    app.kubernetes.io/component: docs
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      restartPolicy: OnFailure
+      containers:
+        - name: docs-backend
+          image: registry-1.docker.io/lasuite/impress-backend:v4.4.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while ! python manage.py check --database default > /dev/null 2>&1
+              do
+                echo "Database not ready"
+                sleep 2
+              done
+            
+              echo "Database is ready"
+            
+              python manage.py createsuperuser --email $DJANGO_SUPERUSER_EMAIL --password $DJANGO_SUPERUSER_PASSWORD
+          env:            
+            - name: "AI_FEATURE_ENABLED"
+              value: "false"
+            - name: "API_USERS_LIST_LIMIT"
+              value: "5"
+            - name: "API_USERS_LIST_THROTTLE_RATE_BURST"
+              value: "30/minute"
+            - name: "API_USERS_LIST_THROTTLE_RATE_SUSTAINED"
+              value: "180/hour"
+            - name: "AWS_S3_ACCESS_KEY_ID"
+              value: "admin"
+            - name: "AWS_S3_ENDPOINT_URL"
+              value: "http://docs-minio:9000"
+            - name: "AWS_S3_SECRET_ACCESS_KEY"
+              value: "eaec399fb5e8c9d60874213f1a11deda3a7d5626"
+            - name: "AWS_STORAGE_BUCKET_NAME"
+              value: "docs"
+            - name: "CACHES_DEFAULT_TIMEOUT"
+              value: "30"
+            - name: "COLLABORATION_API_URL"
+              value: "https://docs.kubernetes.local/collaboration/api/"
+            - name: "COLLABORATION_SERVER_SECRET"
+              value: "80581bb5421f6905551f6dc6c438978950e4de18"
+            - name: "COLLABORATION_WS_NOT_CONNECTED_READY_ONLY"
+              value: "true"
+            - name: "COLLABORATION_WS_URL"
+              value: "wss://docs.kubernetes.local/collaboration/ws/"
+            - name: "CONVERSION_API_CONTENT_FIELD"
+              value: "content"
+            - name: "CONVERSION_API_ENDPOINT"
+              value: "convert"
+            - name: "CONVERSION_API_SECURE"
+              value: "false"
+            - name: "CONVERSION_API_TIMEOUT"
+              value: "30"
+            - name: "CRISP_WEBSITE_ID"
+              value: ""
+            - name: "DB_ENGINE"
+              value: "django.db.backends.postgresql_psycopg2"
+            - name: "DB_HOST"
+              value: "docs-postgresql"
+            - name: "DB_NAME"
+              value: "docs"
+            - name: "DB_PASSWORD"
+              value: "75dc629878d408fac2a666397eced361e8bb9a7f"
+            - name: "DB_PORT"
+              value: "5432"
+            - name: "DB_USER"
+              value: "docs"
+            - name: "DJANGO_ALLOWED_HOSTS"
+              value: "docs.kubernetes.local"
+            - name: "DJANGO_CELERY_BROKER_TRANSPORT_OPTIONS"
+              value: ""
+            - name: "DJANGO_CELERY_BROKER_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "DJANGO_CONFIGURATION"
+              value: "Production"
+            - name: "DJANGO_CORS_ALLOWED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_CORS_ALLOWED_ORIGIN_REGEXES"
+              value: ""
+            - name: "DJANGO_CORS_ALLOW_ALL_ORIGINS"
+              value: "false"
+            - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
+              value: "https://docs.kubernetes.local"
+            - name: "DJANGO_EMAIL_BACKEND"
+              value: "django.core.mail.backends.smtp.EmailBackend"
+            - name: "DJANGO_EMAIL_BRAND_NAME"
+              value: "Mijn Bureau"
+            - name: "DJANGO_EMAIL_FROM"
+              value: "you@example.com"
+            - name: "DJANGO_EMAIL_HOST"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_PASSWORD"
+              value: ""
+            - name: "DJANGO_EMAIL_HOST_USER"
+              value: ""
+            - name: "DJANGO_EMAIL_LOGO_IMG"
+              value: "https://minbzk.github.io/mijn-bureau/assets/logo-kleur.png"
+            - name: "DJANGO_EMAIL_PORT"
+              value: "587"
+            - name: "DJANGO_EMAIL_USE_SSL"
+              value: "false"
+            - name: "DJANGO_EMAIL_USE_TLS"
+              value: "true"
+            - name: "DJANGO_SECRET_KEY"
+              value: "628c890853f7b87624b710152e5b68e2dc53cc9f180e98f7eda61287612516a"
+            - name: "DJANGO_SERVER_TO_SERVER_API_TOKENS"
+              value: "secret-api-key"
+            - name: "DJANGO_SETTINGS_MODULE"
+              value: "impress.settings"
+            - name: "DJANGO_SUPERUSER_EMAIL"
+              value: "admin@example.com"
+            - name: "DJANGO_SUPERUSER_PASSWORD"
+              value: "fcf35ca5fbe14f99471807fd332cacce92c47cbe"
+            - name: "DOCUMENT_IMAGE_MAX_SIZE"
+              value: "10485760"
+            - name: "FRONTEND_CSS_URL"
+              value: ""
+            - name: "FRONTEND_HOMEPAGE_FEATURE_ENABLED"
+              value: "false"
+            - name: "FRONTEND_THEME"
+              value: ""
+            - name: "LANGUAGE_CODE"
+              value: "nl"
+            - name: "LOGGING_LEVEL_HANDLERS_CONSOLE"
+              value: "ERROR"
+            - name: "LOGGING_LEVEL_LOGGERS_APP"
+              value: "INFO"
+            - name: "LOGGING_LEVEL_LOGGERS_ROOT"
+              value: "INFO"
+            - name: "LOGIN_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGIN_REDIRECT_URL_FAILURE"
+              value: "https://docs.kubernetes.local"
+            - name: "LOGOUT_REDIRECT_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "MALWARE_DETECTION_BACKEND"
+              value: "lasuite.malware_detection.backends.dummy.DummyBackend"
+            - name: "MALWARE_DETECTION_PARAMETERS"
+              value: "{\"callback_path\": \"core.malware_detection.malware_detection_callback\",}"
+            - name: "MEDIA_BASE_URL"
+              value: "https://docs.kubernetes.local"
+            - name: "NO_WEBSOCKET_CACHE_TIMEOUT"
+              value: "120"
+            - name: "OIDC_ALLOW_DUPLICATE_EMAILS"
+              value: "false"
+            - name: "OIDC_AUTH_REQUEST_EXTRA_PARAMS"
+              value: "{}"
+            - name: "OIDC_CREATE_USER"
+              value: "false"
+            - name: "OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION"
+              value: "true"
+            - name: "OIDC_OP_AUTHORIZATION_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_JWKS_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_LOGOUT_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_TOKEN_ENDPOINT"
+              value: 
+            - name: "OIDC_OP_USER_ENDPOINT"
+              value: 
+            - name: "OIDC_REDIRECT_ALLOWED_HOSTS"
+              value: "[https://docs.kubernetes.local]"
+            - name: "OIDC_REDIRECT_REQUIRE_HTTPS"
+              value: "true"
+            - name: "OIDC_RP_CLIENT_ID"
+              value: "docs"
+            - name: "OIDC_RP_CLIENT_SECRET"
+              value: "0c74f7bb06868201c91a14fba0844f33a5f25738"
+            - name: "OIDC_RP_SCOPES"
+              value: "openid email"
+            - name: "OIDC_RP_SIGN_ALGO"
+              value: "RS256"
+            - name: "OIDC_STORE_ID_TOKEN"
+              value: "true"
+            - name: "OIDC_USERINFO_FULLNAME_FIELDS"
+              value: "given_name"
+            - name: "OIDC_USERINFO_SHORTNAME_FIELD"
+              value: "name"
+            - name: "OIDC_USE_NONCE"
+              value: "true"
+            - name: "PYTHONPATH"
+              value: "/app"
+            - name: "REDIS_URL"
+              value: "redis://default:d54862c356558c9401d9acebf369f74a1c2a8c1f@docs-redis-master:6379/1"
+            - name: "SENTRY_DSN"
+              value: ""
+            - name: "SESSION_COOKIE_AGE"
+              value: "43200"
+            - name: "SPECTACULAR_SETTINGS_ENABLE_DJANGO_DEPLOY_CHECK"
+              value: "false"
+            - name: "STORAGES_STATICFILES_BACKEND"
+              value: "django.contrib.staticfiles.storage.StaticFilesStorage"
+            - name: "THEME_CUSTOMIZATION_CACHE_TIMEOUT"
+              value: "86400"
+            - name: "THEME_CUSTOMIZATION_FILE_PATH"
+              value: ""
+            - name: "USER_OIDC_ESSENTIAL_CLAIMS"
+              value: ""
+            - name: "Y_PROVIDER_API_BASE_URL"
+              value: "http://docs-y-provider:443/api/"
+            - name: "Y_PROVIDER_API_KEY"
+              value: "efe21c659a53c8e457fe4c27f8288fe52b90bde0"
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: theme-customization
+              mountPath: /app/impress/configuration/theme
+              readOnly: true
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: theme-customization
+          configMap:
+            name: docs-theme
+---
+# Source: docs/templates/ingress-admin.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs-backend-admin
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: backend
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: docs.kubernetes.local
+      http:
+        paths:
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: docs-backend
+                port:
+                  name: http
+          - path: /static
+            pathType: Prefix
+            backend:
+              service:
+                name: docs-backend
+                port:
+                  name: http
+---
+# Source: docs/templates/ingress-collaboration-api.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs-y-provider-api
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: y-provider
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/upstream-hash-by: $arg_room
+spec:
+  rules:
+    - host: docs.kubernetes.local
+      http:
+        paths:
+          - path: /collaboration/api/
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: docs-y-provider
+                port:
+                  name: http
+---
+# Source: docs/templates/ingress-collaboration-ws.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs-y-provider-ws
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: y-provider
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/enable-websocket: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+    nginx.ingress.kubernetes.io/upstream-hash-by: $arg_room
+spec:
+  rules:
+    - host: docs.kubernetes.local
+      http:
+        paths:
+          - path: /collaboration/ws/
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: docs-y-provider
+                port:
+                  name: http
+---
+# Source: docs/templates/ingress-media.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs-media
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: docs
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Content-Security-Policy "default-src 'none'" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: docs.kubernetes.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: docs-nginx
+                port:
+                  name: http
+            path: /media-auth
+            pathType: Prefix
+          - path: /media
+            pathType: Prefix
+            backend:
+              service:
+                name: docs-nginx
+                port:
+                  name: http
+---
+# Source: docs/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs
+  namespace: "omara-sep"
+  labels:
+    app.kubernetes.io/instance: docs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: docs
+    app.kubernetes.io/part-of: docs
+    app.kubernetes.io/version: 4.4.0
+    helm.sh/chart: docs-0.1.0
+    app.kubernetes.io/component: docs
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: docs.kubernetes.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docs-frontend
+                port:
+                  name: http
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: docs-backend
+                port:
+                  name: http
+

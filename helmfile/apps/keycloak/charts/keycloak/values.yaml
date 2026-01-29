@@ -1296,7 +1296,7 @@ postgresql:
 ## @param externalDatabase.extraParams Additional JDBC connection parameters appended to the JDBC URL (KC_DB_URL).
 ##
 externalDatabase:
-  host: keycloak
+  host: "postgres-db.omara-sep.svc.cluster.local"
   port: 5432
   user: keycloak-user
   database: keycloak
