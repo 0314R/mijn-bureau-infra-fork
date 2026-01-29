@@ -118,7 +118,7 @@ Return the Database hostname
 Return the Database port
 */}}
 {{- define "keycloak.database.port" -}}
-{{- ternary "5432" "5444" .Values.postgresql.enabled -}}
+{{- ternary "5432" .Values.externalDatabase.port .Values.postgresql.enabled -}}
 {{- end -}}
 
 {{/*
