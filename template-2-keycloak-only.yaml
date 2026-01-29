@@ -871,14 +871,13 @@ metadata:
     app.kubernetes.io/part-of: keycloak
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging-nginx
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 status:
   loadBalancer:
     ingress:
       - hostname: cloud.first8.nl
 spec:
+  ingressClassName: nginx
   rules:
     - host: omara-sep.cloud.first8.nl
       http:
